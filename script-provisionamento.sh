@@ -21,8 +21,8 @@ WEB_APP_WORKER_NAME="${WEB_APP_WORKER_NAME:-app-zelafix-worker-561432}"
 
 # Conexões e Parâmetros de Banco de Dados (Oracle FIAP)
 ORACLE_URL="${ORACLE_URL:-jdbc:oracle:thin:@//oracle.fiap.com.br:1521/orcl}"
-ORACLE_USER="${ORACLE_USER:-RM561432}"
-ORACLE_PASS="${ORACLE_PASSWORD:-301006}"
+ORACLE_USER="${ORACLE_USER:-RM566422}"
+ORACLE_PASS="${ORACLE_PASSWORD:-201006}"
 FLYWAY_ENABLED="${FLYWAY_ENABLED:-true}"
 JPA_DDL_AUTO="${JPA_DDL_AUTO:-update}"
 
