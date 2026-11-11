@@ -8,32 +8,47 @@
 
 export MSYS_NO_PATHCONV=1
 
-# Configurações padrão da infraestrutura
+# -----------------------------------------------------------------------------
+# Carregar Variáveis de Ambiente Seguras (.env)
+# -----------------------------------------------------------------------------
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/.env" ]; then
+  set -a
+  source "$SCRIPT_DIR/.env"
+  set +a
+  echo "🔒 [DevSecOps] Variáveis carregadas com sucesso a partir de $SCRIPT_DIR/.env"
+elif [ -f ".env" ]; then
+  set -a
+  source ".env"
+  set +a
+  echo "🔒 [DevSecOps] Variáveis carregadas com sucesso a partir de .env"
+fi
+
+# Configurações de infraestrutura (parametrizáveis via .env ou ambiente)
 RESOURCE_GROUP="${RESOURCE_GROUP:-rg-zelafix}"
 LOCATION="${LOCATION:-eastus}"
 PLAN_NAME="${PLAN_NAME:-asp-zelafix}"
-# Plano F1 (Free Tier) conforme solicitado pelo grupo
 SKU="${SKU:-F1}"
 
-# Nome do Azure Web App da API (deve bater 100% com o azure-pipelines.yml)
+# Nomes dos Azure Web Apps
 WEB_APP_NAME="${WEB_APP_NAME:-app-zelafix-561432}"
 WEB_APP_WORKER_NAME="${WEB_APP_WORKER_NAME:-app-zelafix-worker-561432}"
 
-# Conexões e Parâmetros de Banco de Dados (Oracle FIAP)
+# Conexões e Parâmetros de Banco de Dados (Oracle FIAP - lidos do .env)
 ORACLE_URL="${ORACLE_URL:-jdbc:oracle:thin:@//oracle.fiap.com.br:1521/orcl}"
-ORACLE_USER="${ORACLE_USER:-RM566422}"
-ORACLE_PASS="${ORACLE_PASSWORD:-201006}"
+ORACLE_USER="${ORACLE_USER:-}"
+ORACLE_PASS="${ORACLE_PASSWORD:-}"
 FLYWAY_ENABLED="${FLYWAY_ENABLED:-true}"
 JPA_DDL_AUTO="${JPA_DDL_AUTO:-update}"
 
-# RabbitMQ (Local ou CloudAMQP)
+# RabbitMQ (Local ou CloudAMQP - lidos do .env)
 RABBITMQ_URI="${RABBITMQ_URI:-}"
 RABBITMQ_HOST="${RABBITMQ_HOST:-localhost}"
 RABBITMQ_PORT="${RABBITMQ_PORT:-5672}"
-RABBITMQ_USER="${RABBITMQ_USERNAME:-guest}"
-RABBITMQ_PASS="${RABBITMQ_PASSWORD:-guest}"
+RABBITMQ_USER="${RABBITMQ_USERNAME:-}"
+RABBITMQ_PASS="${RABBITMQ_PASSWORD:-}"
 
-# Spring AI (Groq API para Triagem Inteligente)
+# Spring AI (Groq API - lidos do .env)
 GROQ_API_KEY="${GROQ_API_KEY:-}"
 GROQ_BASE_URL="${GROQ_BASE_URL:-https://api.groq.com/openai/v1}"
 GROQ_MODEL="${GROQ_MODEL:-qwen/qwen3.8-27b}"

@@ -27,7 +27,7 @@
 | ⚙️ **Worker em Produção (Azure Web App)** | Host do Heavy Worker de Triagem Inteligente e Votos (Porta 8081) | `https://app-zelafix-worker-561432.azurewebsites.net` |
 | 🩺 **Actuator Health (Worker)** | Healthcheck em tempo real do Worker (RabbitMQ + Groq AI + DB) | `https://app-zelafix-worker-561432.azurewebsites.net/actuator/health` |
 | 📊 **OpenAPI Spec (JSON)** | Especificação OpenAPI 3.0 para consumo do app Mobile | `https://app-zelafix-561432.azurewebsites.net/v3/api-docs` |
-| 🚀 **Projeto no Azure DevOps** | Organização e Projeto Privado com Boards, Repos e Pipelines | `https://dev.azure.com/GlobalSolution-CitizenTech/ZelaFix` |
+| 🚀 **Projeto no Azure DevOps** | Organização e Projeto Privado com Boards, Repos e Pipelines | `https://dev.azure.com/ZelaFixGS/ZelaFix` |
 | 💻 **Repositório GitHub (DevOps)** | Repositório de IaC, Dockerfile e Esteiras YAML de CI/CD | [DevOps-Tools-Cloud-Computing](https://github.com/Global-Solution-CitizenTech/DevOps-Tools-Cloud-Computing) |
 | ☕ **Repositório GitHub (Java Advanced)** | Código-fonte da aplicação Spring Boot e suíte de testes | [Java-Advanced](https://github.com/Global-Solution-CitizenTech/Java-Advanced) |
 | 🎥 **Vídeo de Demonstração (YouTube)** | Demonstração narrada por voz com esteira completa e CRUD | *(Link YouTube a ser inserido após gravação)* |
