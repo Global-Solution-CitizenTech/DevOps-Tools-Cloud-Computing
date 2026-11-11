@@ -1,0 +1,10 @@
+# =============================================================================
+# FIAP - GLOBAL SOLUTION 2026/2 | CITIZENTECH & CIDADES SUSTENTÁVEIS (ODS 11)
+# Dockerfile para ZelaFix Worker Assíncrono (Spring Boot 4.1.1 + Java 21 LTS + Spring AI)
+# =============================================================================
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY zelafix-worker/build/libs/*.jar app.jar
+ENV PORT=8081
+EXPOSE 8081
+ENTRYPOINT ["java", "-Dserver.port=8081", "-jar", "app.jar"]

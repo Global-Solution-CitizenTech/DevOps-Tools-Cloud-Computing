@@ -1,0 +1,10 @@
+# =============================================================================
+# FIAP - GLOBAL SOLUTION 2026/2 | CITIZENTECH & CIDADES SUSTENTÁVEIS (ODS 11)
+# Dockerfile para ZelaFix API REST (Spring Boot 4.1.1 + Java 21 LTS)
+# =============================================================================
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY zelafix-api/build/libs/*.jar app.jar
+ENV PORT=8080
+EXPOSE 8080
+ENTRYPOINT ["java", "-Dserver.port=8080", "-jar", "app.jar"]
