@@ -195,17 +195,17 @@ O backend utiliza o banco de dados corporativo **Oracle Database 19c** hospedado
 
 ## 5. 📜 Script de Provisionamento de Infraestrutura (Azure CLI)
 
-O repositório disponibiliza o script automatizado [`script-provisionamento.sh`](./script-provisionamento.sh) em Bash utilizando o **Azure CLI** para criação e configuração declarativa e idempotente de toda a infraestrutura em nuvem:
+O repositório disponibiliza o script automatizado [`script-provisionamento.sh`](./scripts/script-provisionamento.sh) em Bash utilizando o **Azure CLI** para criação e configuração declarativa e idempotente de toda a infraestrutura em nuvem:
 
 ```bash
 # Execução no terminal com Azure CLI autenticado:
-chmod +x script-provisionamento.sh
-./script-provisionamento.sh
+chmod +x scripts/script-provisionamento.sh
+./scripts/script-provisionamento.sh
 ```
 
 ### Limpeza e Reconstrução (--clean):
 ```bash
-./script-provisionamento.sh --clean
+./scripts/script-provisionamento.sh --clean
 ```
 
 ### 💡 Por que o Plano F1 (Free Tier) e como ele é configurado?
@@ -338,9 +338,9 @@ Para atender estritamente aos 10 passos obrigatórios exigidos pelo edital da Gl
 | **06** | Pipeline de Release executa automaticamente após CI | ✅ Atendido | Estágio `Deploy` condicionado ao sucesso do estágio `Build` |
 | **07** | Deploy da aplicação via PaaS (App Service) | ✅ Atendido | Azure App Service Linux (PaaS) |
 | **08** | Banco de dados hospedado em nuvem (Oracle FIAP Cloud) | ✅ Atendido | Oracle Database 19c Corporativo FIAP Cloud |
-| **09** | Scripts de infraestrutura versionados no repositório | ✅ Atendido | [`script-provisionamento.sh`](./script-provisionamento.sh) |
+| **09** | Scripts de infraestrutura versionados no repositório | ✅ Atendido | [`script-provisionamento.sh`](./scripts/script-provisionamento.sh) |
 | **10** | DDL dos objetos de banco de dados documentados | ✅ Atendido | Schema corporativo 3FN Oracle |
-| **11** | Scripts de automação Azure CLI | ✅ Atendido | [`script-provisionamento.sh`](./script-provisionamento.sh) |
+| **11** | Scripts de automação Azure CLI | ✅ Atendido | [`script-provisionamento.sh`](./scripts/script-provisionamento.sh) |
 | **12** | Arquivo de pipeline CI/CD na raiz do repositório | ✅ Atendido | [`azure-pipelines.yml`](./azure-pipelines.yml) |
 | **13** | Payloads JSON de exemplo para teste de CRUD no README | ✅ Atendido | Documentados na Seção 6 |
 | **14** | Utilização de variáveis de ambiente sem senhas em texto puro | ✅ Atendido | Parametrização via secrets no Azure DevOps e Application Settings |

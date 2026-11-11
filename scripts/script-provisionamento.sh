@@ -12,17 +12,16 @@ export MSYS_NO_PATHCONV=1
 # Carregar Variáveis de Ambiente Seguras (.env)
 # -----------------------------------------------------------------------------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if [ -f "$SCRIPT_DIR/.env" ]; then
-  set -a
-  source "$SCRIPT_DIR/.env"
-  set +a
-  echo "🔒 [DevSecOps] Variáveis carregadas com sucesso a partir de $SCRIPT_DIR/.env"
-elif [ -f ".env" ]; then
-  set -a
-  source ".env"
-  set +a
-  echo "🔒 [DevSecOps] Variáveis carregadas com sucesso a partir de .env"
-fi
+# O .env fica na raiz do repositório (pasta acima de /scripts)
+for ENV_FILE in "$SCRIPT_DIR/../.env" "$SCRIPT_DIR/.env" ".env"; do
+  if [ -f "$ENV_FILE" ]; then
+    set -a
+    source "$ENV_FILE"
+    set +a
+    echo "🔒 [DevSecOps] Variáveis carregadas com sucesso a partir de $ENV_FILE"
+    break
+  fi
+done
 
 # Configurações de infraestrutura (parametrizáveis via .env ou ambiente)
 RESOURCE_GROUP="${RESOURCE_GROUP:-rg-zelafix}"
@@ -100,20 +99,27 @@ az group create \
 # 1.1 Provisionamento do Broker RabbitMQ (Azure Container Instances - ACI)
 # -----------------------------------------------------------------------------
 echo ""
-echo "▶ [1.1/4] Verificando / Criando Azure Container Instance RabbitMQ ($RABBITMQ_CONTAINER_NAME)..."
-if ! az container show --resource-group "$RESOURCE_GROUP" --name "$RABBITMQ_CONTAINER_NAME" &>/dev/null; then
-  echo "🐰 Provisionando novo Azure Container Instance para RabbitMQ..."
-  az container create \
-    --resource-group "$RESOURCE_GROUP" \
-    --name "$RABBITMQ_CONTAINER_NAME" \
-    --image "public.ecr.aws/docker/library/rabbitmq:3.13-management-alpine" \
-    --dns-name-label "$RABBITMQ_CONTAINER_NAME" \
-    --ports 5672 15672 \
-    --cpu 1 --memory 1 \
-    --environment-variables RABBITMQ_DEFAULT_USER="$RABBITMQ_USER" RABBITMQ_DEFAULT_PASS="$RABBITMQ_PASS" \
-    --output table
+echo "▶ [1.1/4] RabbitMQ: broker externo (CloudAMQP free) ou ACI opcional..."
+# O App Service só expõe HTTP/HTTPS (80/443), então não hospeda um broker AMQP (5672).
+# Padrão (gratuito): usar CloudAMQP plano Little Lemur -> informe RABBITMQ_URI/HOST/USER/PASS no .env.
+# Opcional (pago, ~US$1,5/dia): PROVISION_RABBIT_ACI=true cria um Azure Container Instance.
+if [ "${PROVISION_RABBIT_ACI:-false}" = "true" ]; then
+  if ! az container show --resource-group "$RESOURCE_GROUP" --name "$RABBITMQ_CONTAINER_NAME" &>/dev/null; then
+    echo "🐰 Provisionando Azure Container Instance para RabbitMQ..."
+    az container create \
+      --resource-group "$RESOURCE_GROUP" \
+      --name "$RABBITMQ_CONTAINER_NAME" \
+      --image "public.ecr.aws/docker/library/rabbitmq:3.13-management-alpine" \
+      --dns-name-label "$RABBITMQ_CONTAINER_NAME" \
+      --ports 5672 15672 \
+      --cpu 1 --memory 1 \
+      --environment-variables RABBITMQ_DEFAULT_USER="$RABBITMQ_USER" RABBITMQ_DEFAULT_PASS="$RABBITMQ_PASS" \
+      --output table
+  else
+    echo "ℹ️ Container Instance RabbitMQ ($RABBITMQ_CONTAINER_NAME) já existe."
+  fi
 else
-  echo "ℹ️ Container Instance RabbitMQ ($RABBITMQ_CONTAINER_NAME) já existe e está operacional."
+  echo "ℹ️ ACI desativado. Usando broker em RABBITMQ_HOST=$RABBITMQ_HOST"
 fi
 
 # -----------------------------------------------------------------------------
