@@ -40,15 +40,14 @@ ORACLE_PASS="${ORACLE_PASSWORD:-}"
 FLYWAY_ENABLED="${FLYWAY_ENABLED:-true}"
 JPA_DDL_AUTO="${JPA_DDL_AUTO:-update}"
 
-# RabbitMQ (Azure Container Instance ou CloudAMQP - lidos do .env)
-RABBITMQ_CONTAINER_NAME="${RABBITMQ_CONTAINER_NAME:-zelafix-rabbitmq-561432}"
+# RabbitMQ (CloudAMQP - plano gratuito Little Lemur). A URI amqps://USER:SENHA@HOST/VHOST
+# carrega host, credenciais, vhost e TLS; o Spring a le via SPRING_RABBITMQ_ADDRESSES.
 RABBITMQ_URI="${RABBITMQ_URI:-}"
-RABBITMQ_HOST="${RABBITMQ_HOST:-zelafix-rabbitmq-561432.eastus.azurecontainer.io}"
-RABBITMQ_PORT="${RABBITMQ_PORT:-5672}"
-RABBITMQ_USER="${RABBITMQ_USERNAME:-guest}"
-RABBITMQ_PASS="${RABBITMQ_PASSWORD:-guest}"
 RABBITMQ_CONCURRENCY="${RABBITMQ_CONCURRENCY:-1}"
-MANAGEMENT_HEALTH_RABBIT_ENABLED="${MANAGEMENT_HEALTH_RABBIT_ENABLED:-true}"
+if [ -z "$RABBITMQ_URI" ]; then
+  echo "❌ RABBITMQ_URI não definida no .env (ex.: amqps://usuario:senha@host.cloudamqp.com/vhost)."
+  exit 1
+fi
 
 # Spring AI (Groq API - lidos do .env)
 GROQ_API_KEY="${GROQ_API_KEY:-}"
@@ -94,33 +93,6 @@ az group create \
   --name "$RESOURCE_GROUP" \
   --location "$LOCATION" \
   --output table
-
-# -----------------------------------------------------------------------------
-# 1.1 Provisionamento do Broker RabbitMQ (Azure Container Instances - ACI)
-# -----------------------------------------------------------------------------
-echo ""
-echo "▶ [1.1/4] RabbitMQ: broker externo (CloudAMQP free) ou ACI opcional..."
-# O App Service só expõe HTTP/HTTPS (80/443), então não hospeda um broker AMQP (5672).
-# Padrão (gratuito): usar CloudAMQP plano Little Lemur -> informe RABBITMQ_URI/HOST/USER/PASS no .env.
-# Opcional (pago, ~US$1,5/dia): PROVISION_RABBIT_ACI=true cria um Azure Container Instance.
-if [ "${PROVISION_RABBIT_ACI:-false}" = "true" ]; then
-  if ! az container show --resource-group "$RESOURCE_GROUP" --name "$RABBITMQ_CONTAINER_NAME" &>/dev/null; then
-    echo "🐰 Provisionando Azure Container Instance para RabbitMQ..."
-    az container create \
-      --resource-group "$RESOURCE_GROUP" \
-      --name "$RABBITMQ_CONTAINER_NAME" \
-      --image "public.ecr.aws/docker/library/rabbitmq:3.13-management-alpine" \
-      --dns-name-label "$RABBITMQ_CONTAINER_NAME" \
-      --ports 5672 15672 \
-      --cpu 1 --memory 1 \
-      --environment-variables RABBITMQ_DEFAULT_USER="$RABBITMQ_USER" RABBITMQ_DEFAULT_PASS="$RABBITMQ_PASS" \
-      --output table
-  else
-    echo "ℹ️ Container Instance RabbitMQ ($RABBITMQ_CONTAINER_NAME) já existe."
-  fi
-else
-  echo "ℹ️ ACI desativado. Usando broker em RABBITMQ_HOST=$RABBITMQ_HOST"
-fi
 
 # -----------------------------------------------------------------------------
 # 2. Criação do App Service Plan (Linux - F1 Free Tier)
@@ -189,11 +161,6 @@ az webapp config appsettings set \
     JPA_DDL_AUTO="$JPA_DDL_AUTO" \
     FLYWAY_ENABLED="$FLYWAY_ENABLED" \
     JAVA_OPTS="$JAVA_OPTS" \
-    MANAGEMENT_HEALTH_RABBIT_ENABLED="$MANAGEMENT_HEALTH_RABBIT_ENABLED" \
-    RABBITMQ_HOST="$RABBITMQ_HOST" \
-    RABBITMQ_PORT="$RABBITMQ_PORT" \
-    RABBITMQ_USERNAME="$RABBITMQ_USER" \
-    RABBITMQ_PASSWORD="$RABBITMQ_PASS" \
     SPRING_RABBITMQ_ADDRESSES="$RABBITMQ_URI" \
   --output table
 
@@ -210,11 +177,6 @@ az webapp config appsettings set \
     PORT="8081" \
     WEBSITES_PORT="8081" \
     JAVA_OPTS="$JAVA_OPTS" \
-    MANAGEMENT_HEALTH_RABBIT_ENABLED="$MANAGEMENT_HEALTH_RABBIT_ENABLED" \
-    RABBITMQ_HOST="$RABBITMQ_HOST" \
-    RABBITMQ_PORT="$RABBITMQ_PORT" \
-    RABBITMQ_USERNAME="$RABBITMQ_USER" \
-    RABBITMQ_PASSWORD="$RABBITMQ_PASS" \
     RABBITMQ_CONCURRENCY="$RABBITMQ_CONCURRENCY" \
     SPRING_RABBITMQ_ADDRESSES="$RABBITMQ_URI" \
     GROQ_API_KEY="$GROQ_API_KEY" \
