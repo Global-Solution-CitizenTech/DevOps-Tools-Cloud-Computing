@@ -38,7 +38,7 @@ ORACLE_URL="${ORACLE_URL:-jdbc:oracle:thin:@//oracle.fiap.com.br:1521/orcl}"
 ORACLE_USER="${ORACLE_USER:-}"
 ORACLE_PASS="${ORACLE_PASSWORD:-}"
 FLYWAY_ENABLED="${FLYWAY_ENABLED:-true}"
-JPA_DDL_AUTO="${JPA_DDL_AUTO:-update}"
+JPA_DDL_AUTO="${JPA_DDL_AUTO:-none}"
 
 # RabbitMQ (CloudAMQP - plano gratuito Little Lemur). A URI amqps://USER:SENHA@HOST/VHOST
 # carrega host, credenciais, vhost e TLS; o Spring a le via SPRING_RABBITMQ_ADDRESSES.
