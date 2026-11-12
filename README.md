@@ -2,7 +2,9 @@
 
 > **FIAP — Global Solution 2026/2 | CitizenTech: Tecnologia com o Cidadão no Centro da Inovação (ODS 11)**  
 > **Disciplina:** DevOps Tools & Cloud Computing  
-> **Professor:** Antonio Sergio Rodrigues Figueiredo
+> **Professor:** Antonio Sergio Rodrigues Figueiredo  
+> **Arquitetura de Deploy:** Azure Web Apps PaaS (Linux) via Esteira Automatizada CI/CD Azure DevOps  
+> **Opção Distribuída:** Microsserviços e Mensageria Assíncrona via RabbitMQ (CloudAMQP TLS)
 
 <p align="left">
   <img src="https://img.shields.io/badge/Cloud-Microsoft_Azure-0078D4?logo=microsoftazure&logoColor=white" alt="Azure" />
@@ -10,9 +12,11 @@
   <img src="https://img.shields.io/badge/CI%2FCD-Azure_Pipelines-0078D7?logo=azuredevops&logoColor=white" alt="Azure DevOps" />
   <img src="https://img.shields.io/badge/Java-21_LTS-007396?logo=openjdk&logoColor=white" alt="Java 21 LTS" />
   <img src="https://img.shields.io/badge/Spring_Boot-4.1.1-6DB33F?logo=springboot&logoColor=white" alt="Spring Boot 4.1.1" />
-  <img src="https://img.shields.io/badge/Build-Gradle-02303A?logo=gradle&logoColor=white" alt="Gradle" />
+  <img src="https://img.shields.io/badge/Build-Gradle_Multi--Project-02303A?logo=gradle&logoColor=white" alt="Gradle" />
   <img src="https://img.shields.io/badge/Database-Oracle_19c-F80000?logo=oracle&logoColor=white" alt="Oracle Database 19c" />
-  <img src="https://img.shields.io/badge/IaC-Azure_CLI_Bash_%26_PowerShell-4EAA25?logo=gnubash&logoColor=white" alt="IaC" />
+  <img src="https://img.shields.io/badge/Broker-CloudAMQP_RabbitMQ-FF6600?logo=rabbitmq&logoColor=white" alt="CloudAMQP" />
+  <img src="https://img.shields.io/badge/IaC-Azure_CLI_Bash-4EAA25?logo=gnubash&logoColor=white" alt="IaC" />
+  <img src="https://img.shields.io/badge/Containers-Docker_Multi--Stage-2496ED?logo=docker&logoColor=white" alt="Docker" />
 </p>
 
 ---
@@ -24,12 +28,12 @@
 | 🌐 **API em Produção (Azure Web App)** | Endpoint base do App Service da API REST (Plano F1 Linux - Porta 8080) | `https://app-zelafix-561432.azurewebsites.net` |
 | 📖 **Swagger UI Interativo (Produção)** | Console OpenAPI interativo com documentação dos endpoints da API | `https://app-zelafix-561432.azurewebsites.net/swagger-ui.html` |
 | 🩺 **Actuator Health (API)** | Healthcheck em tempo real da API (Oracle DB + Liveness) | `https://app-zelafix-561432.azurewebsites.net/actuator/health` |
-| ⚙️ **Worker em Produção (Azure Web App)** | Host do Heavy Worker de Triagem Inteligente e Votos (Porta 8081) | `https://app-zelafix-worker-561432.azurewebsites.net` |
-| 🩺 **Actuator Health (Worker)** | Healthcheck em tempo real do Worker (RabbitMQ + Groq AI + DB) | `https://app-zelafix-worker-561432.azurewebsites.net/actuator/health` |
+| ⚙️ **Worker em Produção (Azure Web App)** | Host do Worker Assíncrono de Triagem Inteligente com Spring AI (Porta 8081) | `https://app-zelafix-worker-561432.azurewebsites.net` |
+| 🩺 **Actuator Health (Worker)** | Healthcheck em tempo real do Worker (RabbitMQ + Groq AI Liveness) | `https://app-zelafix-worker-561432.azurewebsites.net/actuator/health` |
 | 📊 **OpenAPI Spec (JSON)** | Especificação OpenAPI 3.0 para consumo do app Mobile | `https://app-zelafix-561432.azurewebsites.net/v3/api-docs` |
 | 🚀 **Projeto no Azure DevOps** | Organização e Projeto Privado com Boards, Repos e Pipelines | `https://dev.azure.com/ZelaFixGS/ZelaFix` |
-| 💻 **Repositório GitHub (DevOps)** | Repositório de IaC, Dockerfile e Esteiras YAML de CI/CD | [DevOps-Tools-Cloud-Computing](https://github.com/Global-Solution-CitizenTech/DevOps-Tools-Cloud-Computing) |
-| ☕ **Repositório GitHub (Java Advanced)** | Código-fonte da aplicação Spring Boot e suíte de testes | [Java-Advanced](https://github.com/Global-Solution-CitizenTech/Java-Advanced) |
+| 💻 **Repositório GitHub (DevOps)** | Repositório de IaC, Dockerfiles e scripts de automação | [DevOps-Tools-Cloud-Computing](https://github.com/Global-Solution-CitizenTech/DevOps-Tools-Cloud-Computing) |
+| ☕ **Repositório GitHub (Java Advanced)** | Código-fonte da aplicação Spring Boot, Dockerfiles e suíte de testes | [Java-Advanced](https://github.com/Global-Solution-CitizenTech/Java-Advanced) |
 | 🎥 **Vídeo de Demonstração (YouTube)** | Demonstração narrada por voz com esteira completa e CRUD | *(Link YouTube a ser inserido após gravação)* |
 
 ---
@@ -54,20 +58,23 @@ O **ZelaFix** é uma plataforma corporativa de **zeladoria urbana colaborativa**
 * **Canal Cidadão:** Abertura simplificada de ocorrências georreferenciadas com fotos e descrição detalhada.
 * **Engajamento Comunitário:** Sistema de apoio e votos por munícipes da mesma região para priorização coletiva de chamados perante a administração pública.
 * **Painel da Gestão Municipal:** Rastreabilidade do ciclo de vida dos chamados (`ABERTO`, `EM_ANALISE`, `EM_ANDAMENTO`, `CONCLUIDO`, `CANCELADO`) com histórico cronológico auditável.
-* **Triagem Inteligente:** Assistência de IA para classificação de criticidade e direcionamento automático para a secretaria responsável.
+* **Triagem Inteligente Desacoplada:** Triagem automatizada via LLM multimodal (Groq / Qwen 2.5 32B) processada de forma assíncrona pelo microsserviço Worker via RabbitMQ, sem onerar a API REST nem o banco relacional.
 
-### 🛠️ Stack Tecnológica
+### 🛠️ Stack Tecnológica & Decisões de Engenharia
 
-| Componente | Tecnologia | Finalidade |
+| Componente | Tecnologia | Decisão de Arquitetura |
 |---|---|---|
-| **Linguagem & Runtime** | Java 21 LTS | Runtime corporativo oficial (LTS) |
-| **Framework Base** | Spring Boot 4.1.1 | Framework RESTful com Spring Data JPA, Security e Actuator |
-| **Gerenciador de Build** | Gradle Wrapper (8.x) | Automação determinística de compilação, testes e geração de chaves RSA |
-| **Banco de Dados Relacional** | Oracle Database 19c (FIAP Cloud) | Persistência estrita em 3ª Forma Normal (3FN) conforme `citizenTech.ddl` |
+| **Linguagem & Runtime** | Java 21 LTS | Runtime corporativo oficial com virtual threads e alta performance |
+| **Framework Base** | Spring Boot 4.1.1 | Ecossistema moderno com Spring Data JPA, Security, Actuator e Spring AI 2.0.1 |
+| **Gerenciador de Build** | Gradle Multi-Project (Gradle 8.10) | Compilação e testes atômicos no CI em 1 comando; artefatos JAR isolados e desacoplados |
+| **Banco de Dados Relacional** | Oracle Database 19c (FIAP Cloud) | 11 tabelas em 3ª Forma Normal (3FN), migrations automatizadas via Flyway |
+| **Message Broker** | CloudAMQP (RabbitMQ TLS 5671) | Comunicação assíncrona de eventos na nuvem com plano gratuito Lemon |
 | **Nuvem de Hospedagem** | Microsoft Azure App Service (Linux) | Host PaaS com plano **F1 (Free Tier)** para execução contínua sem custos |
-| **Esteira de CI/CD** | Azure DevOps Pipelines | Automação completa: compilação, testes unitários, publicação de artefato e deploy |
+| **Esteira de CI/CD** | Azure DevOps Pipelines | Automação completa: compilação, 186 testes unitários/integrados, artefatos e deploy |
+| **Espelhamento Contínuo** | GitHub Actions (`mirror-to-azure.yml`) | Push no GitHub sincroniza imediatamente e automaticamente com o Azure Repos |
 | **Agente de Execução** | Self-Hosted Agent (Windows) / Microsoft-Hosted | Pool `Default` dedicado para build e testes sem restrições de concorrência ou cotas |
-| **Infraestrutura como Código (IaC)** | Azure CLI / Bash & PowerShell | Provisionamento declarativo e idempotente do Resource Group, Plan e Web App |
+| **Infraestrutura como Código (IaC)** | Azure CLI / Bash | Provisionamento declarativo e idempotente do Resource Group, Plan e Web Apps |
+| **Containerização** | Docker Multi-Stage Build | Imagens leves baseadas em `eclipse-temurin:21-jre-alpine` com usuário não-root |
 
 ---
 
@@ -78,91 +85,101 @@ O **ZelaFix** é uma plataforma corporativa de **zeladoria urbana colaborativa**
 |                              ARQUITETURA EM NUVEM MICROSOFT AZURE & ESTEIRA CI/CD                               |
 +-----------------------------------------------------------------------------------------------------------------+
 
- [🧑‍💻 Desenvolvedor] 
-         │
-         │ [1] git push origin feature/tarefa-boards
-         ▼
- ┌────────────────────────────────────────────────────────────┐
- │  Azure Repos / GitHub (Branch Feature -> Pull Request)     │
- │  • Política de Branch: Revisor Obrigatório + Work Item     │
- └─────────────────────────────┬──────────────────────────────┘
-                               │ [2] Merge aprovado na branch 'main'
-                               ▼
- ┌─────────────────────────────────────────────────────────────────────────────────┐
- │ AZURE DEVOPS PIPELINES (ZelaFix CI/CD — Multi-Service)                          │
- │                                                                                 │
- │   ┌─────────────────────────────────────────────────────────────────────────┐   │
- │   │ ETAPA 1: CI (Continuous Integration) — Agente Pool 'Default'            │   │
- │   │                                                                         │   │
- │   │   [3] Compilação Gradle Wrapper:                                        │   │
- │   │       `call gradlew.bat clean test bootJar --no-daemon`                 │   │
- │   │                                                                         │   │
- │   │   [4] Execução da Suíte de Testes Automatizados (JUnit 5 + Mockito)     │   │
- │   │                                                                         │   │
- │   │   [5] Publicação de Resultados de Testes XML:                           │   │
- │   │       `PublishTestResults@2` -> Relatório nativo no Azure DevOps        │   │
- │   │                                                                         │   │
- │   │   [6] Empacotamento e Publicação de Artefatos:                          │   │
- │   │       • zelafix-api.jar (Porta 8080)                                    │   │
- │   │       • zelafix-worker.jar (Porta 8081)                                 │   │
- │   │       `PublishBuildArtifacts@1` -> Container de artefato: drop/         │   │
- │   └────────────────────────────────────┬────────────────────────────────────┘   │
- │                                        │                                        │
- │                                        │ [7] Disparo Automático de Release (CD) │
- │                                        ▼                                        │
- │   ┌─────────────────────────────────────────────────────────────────────────┐   │
- │   │ ETAPA 2: CD (Continuous Deployment) — Deploy nos Azure Web Apps         │   │
- │   │                                                                         │   │
- │   │   [8] Task `AzureWebApp@1` (API):                                       │   │
- │   │       Deploy atômico de `zelafix-api.jar` no Web App `app-zelafix`      │   │
- │   │   [9] Task `AzureWebApp@1` (Worker):                                    │   │
- │   │       Deploy atômico de `zelafix-worker.jar` no Web App `app-worker`    │   │
- │   └────────────────────────────────────┬────────────────────────────────────┘   │
- └────────────────────────────────────────┼────────────────────────────────────────┘
-                                          │
-                                          │ Deploy dos Binários JAR Executáveis
-                                          ▼
- ┌─────────────────────────────────────────────────────────────────────────────────┐
- │ MICROSOFT AZURE CLOUD (Resource Group: rg-zelafix | Região: East US)            │
- │                                                                                 │
- │   ┌───────────────────────────────────┐ ┌───────────────────────────────────┐   │
- │   │ Web App: `app-zelafix-561432`     │ │ Web App: `app-zelafix-worker`     │   │
- │   │ Runtime: Java 21 (API REST 8080)  │ │ Runtime: Java 21 (Worker 8081)    │   │
- │   │ Produtor RabbitMQ & Auth JWT      │ │ Consumidor RabbitMQ & Spring AI   │   │
- │   └─────────────────┬─────────────────┘ └─────────────────┬─────────────────┘   │
- └─────────────────────┼─────────────────────────────────────┼─────────────────────┘
-                       │                                     │
-                       │ Publica Mensagem                    │ Consome Mensagem
-                       ▼                                     ▼
-       ┌─────────────────────────────────────────────────────────────┐
-       │ RabbitMQ Message Broker (CloudAMQP / AMQPS TLS 5671)        │
-       │ • Exchange: `zelafix.direct`                                │
-       │ • Filas: `chamado.triagem.queue` e `chamado.voto.queue`     │
-       └─────────────────────────────────────────────────────────────┘
-                       │                                     │
-                       ▼                                     ▼
-               ┌─────────────────────────────────────────────────────┐
-               │ Oracle Database 19c (FIAP Cloud: oracle.fiap.com)   │
-               │ • 11 Tabelas Relacionais 3FN                        │
-               │ • Migrations Flyway aplicadas no boot               │
-               │ • CRUD & Persistência em Nuvem                      │
-               └─────────────────────────────────────────────────────┘
-                                       ▲
-                                       │ HTTPS (Porta 443) / REST / Swagger UI
-                                       │
-                         [📱 Munícipe (Mobile React Native)]
+  [🧑‍💻 Desenvolvedor]
+          │
+          │ [1] git push origin feature/tarefa-boards (GitHub)
+          ▼
+  ┌────────────────────────────────────────────────────────────┐
+  │  GitHub Actions (mirror-to-azure.yml)                      │
+  │  • Espelhamento automático instantâneo para o Azure Repos  │
+  └─────────────────────────────┬──────────────────────────────┘
+                                │ [2] Sincronização automática
+                                ▼
+  ┌────────────────────────────────────────────────────────────┐
+  │  Azure Repos (Branch Feature -> Pull Request na 'main')    │
+  │  • Política de Branch: Revisor Obrigatório + Work Item     │
+  └─────────────────────────────┬──────────────────────────────┘
+                                │ [3] Merge aprovado na branch 'main'
+                                ▼
+  ┌─────────────────────────────────────────────────────────────────────────────────┐
+  │ AZURE DEVOPS PIPELINES (ZelaFix CI/CD — Multi-Service)                          │
+  │                                                                                 │
+  │   ┌─────────────────────────────────────────────────────────────────────────┐   │
+  │   │ ETAPA 1: CI (Continuous Integration) — Agente Pool 'Default'            │   │
+  │   │                                                                         │   │
+  │   │   [4] Compilação Gradle Multi-Project:                                  │   │
+  │   │       `call gradlew.bat clean test bootJar --no-daemon`                 │   │
+  │   │                                                                         │   │
+  │   │   [5] Execução da Suíte de Testes Automatizados (186 testes JUnit)      │   │
+  │   │                                                                         │   │
+  │   │   [6] Publicação de Resultados de Testes XML:                           │   │
+  │   │       `PublishTestResults@2` -> Relatório nativo no Azure DevOps        │   │
+  │   │                                                                         │   │
+  │   │   [7] Empacotamento e Publicação de Artefatos:                          │   │
+  │   │       • zelafix-api.jar (Porta 8080)                                    │   │
+  │   │       • zelafix-worker.jar (Porta 8081)                                 │   │
+  │   │       `PublishBuildArtifacts@1` -> Container de artefato: drop/         │   │
+  │   └────────────────────────────────────┬────────────────────────────────────┘   │
+  │                                        │                                        │
+  │                                        │ [8] Disparo Automático de Release (CD) │
+  │                                        ▼                                        │
+  │   ┌─────────────────────────────────────────────────────────────────────────┐   │
+  │   │ ETAPA 2: CD (Continuous Deployment) — Deploy nos Azure Web Apps         │   │
+  │   │                                                                         │   │
+  │   │   [9] Task `AzureWebApp@1` (API):                                       │   │
+  │   │       Deploy atômico de `zelafix-api.jar` no Web App `app-zelafix`      │   │
+  │   │   [10] Task `AzureWebApp@1` (Worker):                                   │   │
+  │   │       Deploy atômico de `zelafix-worker.jar` no Web App `app-worker`    │   │
+  │   └────────────────────────────────────┬────────────────────────────────────┘   │
+  └────────────────────────────────────────┼────────────────────────────────────────┘
+                                           │
+                                           │ Deploy dos Binários JAR Executáveis
+                                           ▼
+  ┌─────────────────────────────────────────────────────────────────────────────────┐
+  │ MICROSOFT AZURE CLOUD (Resource Group: rg-zelafix | Região: East US)            │
+  │ Plano de Serviço: `asp-zelafix` (F1 Free Tier compartilhado - Custo R$ 0)       │
+  │                                                                                 │
+  │   ┌───────────────────────────────────┐ ┌───────────────────────────────────┐   │
+  │   │ Web App: `app-zelafix-561432`     │ │Web App:`app-zelafix-worker-561432`│   |
+  │   │ Runtime: Java 21 (API REST 8080)  │ │ Runtime: Java 21 (Worker 8081)    │   │
+  │   │ Produtor RabbitMQ & Auth JWT      │ │ Consumidor RabbitMQ & Spring AI   │   │
+  │   └─────────────────┬─────────────────┘ └─────────────────┬─────────────────┘   │
+  └─────────────────────┼─────────────────────────────────────┼─────────────────────┘
+                        │                                     │
+                        │ Publica Mensagem                    │ Consome Mensagem
+                        ▼                                     ▼
+        ┌─────────────────────────────────────────────────────────────┐
+        │ CloudAMQP Message Broker (RabbitMQ sob TLS AMQPS na 5671)   │
+        │ • Exchange: `zelafix.direct`                                │
+        │ • Filas: `chamado.triagem.queue` e `chamado.voto.queue`     │
+        │ • Fila de Retorno: `chamado.triagem-concluida.queue`        │
+        └─────────────────────────────────────────────────────────────┘
+                        │
+                        ▼
+                ┌─────────────────────────────────────────────────────┐
+                │ Oracle Database 19c (FIAP Cloud: oracle.fiap.com)   │
+                │ • 11 Tabelas Relacionais 3FN                        │
+                │ • Migrations Flyway aplicadas no boot               │
+                │ • CRUD & Persistência em Nuvem                      │
+                └─────────────────────────────────────────────────────┘
+                                        ▲
+                                        │ HTTPS (Porta 443) / REST / Swagger UI
+                                        │
+                          [📱 Munícipe (Mobile React Native)]
 ```
 
-### 🔢 Descrição Detalhada das 8 Etapas da Esteira:
+### 🔢 Descrição Detalhada das 10 Etapas da Esteira:
 
-1. **Gatilho de Código & Pull Request:** O desenvolvedor realiza commits em uma branch de trabalho vinculada a uma tarefa do **Azure Boards**. A branch principal `main` é estritamente protegida por políticas de branch.
-2. **Merge Aprovado na `main`:** Ao aprovar e completar o Pull Request na `main`, o gatilho (`trigger`) da pipeline é acionado automaticamente.
-3. **Inicialização do Agente:** O agente aloca o job de build em ambiente com JDK 21 e Gradle Wrapper.
-4. **Execução de Build e Testes Automatizados:** O comando Gradle compila os módulos, gera os pares de chaves criptográficas RSA 2048-bit dinamicamente e executa os testes unitários e de integração JUnit.
-5. **Publicação dos Testes:** A tarefa `PublishTestResults@2` lê os relatórios gerados em `**/zelafix-api/build/test-results/test/TEST-*.xml` e publica a aba interativa de testes no Azure DevOps.
-6. **Publicação do Artefato:** O arquivo `zelafix-api-*.jar` é copiado e padronizado como `app.jar` na pasta de staging e publicado no container de artefatos `drop` via `PublishBuildArtifacts@1`.
-7. **Disparo do Estágio CD:** Após 100% de sucesso nas etapas de CI, a etapa de CD é iniciada automaticamente.
-8. **Deploy Atômico no Azure App Service:** A tarefa `AzureWebApp@1` autentica via Service Connection (`ZelaFix-Connection`) e realiza o deploy do `app.jar` no Azure Web App Linux no plano **F1 Free Tier**, reiniciando o serviço com as variáveis de ambiente configuradas.
+1. **Gatilho de Código & GitHub Actions:** O desenvolvedor realiza commits e pushes em uma branch vinculada a uma tarefa do **Azure Boards**. O workflow `.github/workflows/mirror-to-azure.yml` espelha o commit automaticamente para o **Azure Repos**.
+2. **Políticas de Branch no Azure Repos:** A branch principal `main` é estritamente protegida: exige Work Item do Boards vinculado e aprovação de revisor antes de qualquer merge.
+3. **Merge Aprovado na `main`:** Ao completar o Pull Request na `main`, o gatilho nativo (`individualCI`) do `azure-pipelines.yml` é disparado automaticamente.
+4. **Alocação do Agente de Build:** O agente aloca o job em ambiente com JDK 21 e Gradle Wrapper.
+5. **Compilação e Testes Automatizados:** O comando Gradle compila ambos os submódulos (`zelafix-api` e `zelafix-worker`), gera chaves RSA dinâmicas e executa os 186 testes automatizados JUnit 5.
+6. **Publicação dos Testes:** A tarefa `PublishTestResults@2` lê os arquivos XML gerados e disponibiliza a aba nativa de relatórios de testes no Azure DevOps.
+7. **Empacotamento e Publicação de Artefatos:** Os arquivos `zelafix-api.jar` e `zelafix-worker.jar` são consolidados no container de artefatos `'drop'` via `PublishBuildArtifacts@1`.
+8. **Disparo do Estágio CD:** A etapa de Release é executada automaticamente mediante aprovação e sucesso total do estágio de Build.
+9. **Deploy da API no Azure Web App:** A tarefa `AzureWebApp@1` realiza o deploy do `zelafix-api.jar` no Web App `app-zelafix-561432` na porta `8080`.
+10. **Deploy do Worker no Azure Web App:** Em sequência atômica, a segunda tarefa `AzureWebApp@1` realiza o deploy do `zelafix-worker.jar` no Web App `app-zelafix-worker-561432` na porta `8081`.
 
 ---
 
@@ -173,7 +190,7 @@ O backend utiliza o banco de dados corporativo **Oracle Database 19c** hospedado
 * **Host / Conexão:** `jdbc:oracle:thin:@//oracle.fiap.com.br:1521/orcl`
 * **Schema / Usuário:** `RM561432`
 * **Script DDL Oficial:** [`scripts/script-bd.sql`](./scripts/script-bd.sql) (DDL integral contendo 11 tabelas em 3ª Forma Normal, sequences e constraints conforme o Data Modeler `citizenTech.ddl`).
-* **Migrations Automatizadas:** Gerenciadas pelo **Flyway** no boot da aplicação, aplicando schemas e dados iniciais idempotentes.
+* **Migrations Automatizadas (Flyway):** Executadas na inicialização da API (`V1__criar_tabelas_zelafix.sql`, `V2__dados_iniciais_zelafix.sql` e `V3__admin_inicial.sql`), garantindo versionamento idempotente e seguro do banco.
 
 ---
 
@@ -182,20 +199,20 @@ O backend utiliza o banco de dados corporativo **Oracle Database 19c** hospedado
 * **Visibilidade:** Projeto Privado (`Private`).
 * **Processo de Trabalho:** `Agile` (Azure Boards integrado a Repos e Pipelines).
 * **Políticas de Branch na `main` (Branch Policies):**
-  - Número mínimo de revisores: 1 (com permissão para o autor aprovar seu próprio PR para fins acadêmicos).
+  - Número mínimo de revisores: 1 (com permissão para o autor aprovar seu próprio PR para fins de validação acadêmica).
   - Vinculação obrigatória de Work Item (nenhum código entra na `main` sem tarefa rastreada).
   - Revisor padrão configurado (RM do aluno responsável).
 * **Acesso do Professor:**
   - *Nível da Organização:* **Basic**
   - *Nível do Projeto:* **Project Administrators**
 * **Segurança e DevSecOps (Variáveis Protegidas):**
-  - As credenciais de banco de dados (`ORACLE_PASSWORD`, `ORACLE_URL`, `ORACLE_USER`) são cadastradas como **Secrets** mascarados nas variáveis da pipeline (Azure DevOps Library) e no Application Settings do Web App, sem exposição de texto puro no repositório Git.
+  - Credenciais de banco de dados (`ORACLE_PASSWORD`, `ORACLE_URL`, `ORACLE_USER`), token do RabbitMQ (`SPRING_RABBITMQ_ADDRESSES`) e API Key do Groq AI (`GROQ_API_KEY`) são cadastradas como **Secrets** mascarados nas variáveis da pipeline e no Application Settings dos Web Apps, sem exposição de texto puro no repositório Git.
 
 ---
 
 ## 5. 📜 Script de Provisionamento de Infraestrutura (Azure CLI)
 
-O repositório disponibiliza o script automatizado [`script-provisionamento.sh`](./scripts/script-provisionamento.sh) em Bash utilizando o **Azure CLI** para criação e configuração declarativa e idempotente de toda a infraestrutura em nuvem:
+O repositório disponibiliza o script automatizado [`scripts/script-provisionamento.sh`](./scripts/script-provisionamento.sh) em Bash utilizando o **Azure CLI** para criação e configuração declarativa e idempotente de toda a infraestrutura em nuvem:
 
 ```bash
 # Execução no terminal com Azure CLI autenticado:
@@ -209,7 +226,8 @@ chmod +x scripts/script-provisionamento.sh
 ```
 
 ### 💡 Por que o Plano F1 (Free Tier) e como ele é configurado?
-* **Custo Zero:** O plano `F1` (Free Tier) Linux do Azure App Service oferece 60 minutos de computação por dia e 1 GB de memória RAM compartilhada, sendo 100% gratuito e ideal para avaliações acadêmicas.
+* **Custo Zero:** O plano `asp-zelafix` utiliza o SKU **F1** (Free Tier) Linux do Azure App Service, oferecendo 60 minutos de computação por dia e 1 GB de memória RAM compartilhada, sendo 100% gratuito e ideal para avaliações acadêmicas.
+* **Compartilhamento de Plano:** Ambos os Web Apps (`app-zelafix-561432` e `app-zelafix-worker-561432`) rodam dentro do mesmo App Service Plan `asp-zelafix`, custando **R$ 0 adicionais**.
 * **Otimização de JVM para F1:** Para evitar que o container Linux seja derrubado por limite de memória (*OOMKilled*), o script de provisionamento injeta automaticamente a configuração:
   ```bash
   JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom"
@@ -221,7 +239,18 @@ chmod +x scripts/script-provisionamento.sh
 
 ---
 
-## 6. 🧪 Payloads JSON de Exemplo para Teste de CRUD
+## 6. 🐳 Containerização com Docker (Multi-Stage Build)
+
+O repositório conta com definições Docker otimizadas na pasta [`dockerfiles/`](./dockerfiles) para execução local ou em orquestradores de container:
+
+* [`dockerfiles/Dockerfile.api`](./dockerfiles/Dockerfile.api): Imagem baseada em `eclipse-temurin:21-jre-alpine` expondo a porta `8080` com timezone `America/Sao_Paulo`.
+* [`dockerfiles/Dockerfile.worker`](./dockerfiles/Dockerfile.worker): Imagem baseada em `eclipse-temurin:21-jre-alpine` expondo a porta `8081` para o worker assíncrono de IA.
+
+*(No repositório do código Java, os Dockerfiles contam adicionalmente com multi-stage build com compilação Gradle e geração de chaves RSA em tempo de build).*
+
+---
+
+## 7. 🧪 Payloads JSON de Exemplo para Teste de CRUD
 
 Abaixo constam os payloads representativos para execução das operações de **CRUD** nas entidades principais:
 
@@ -236,6 +265,7 @@ Abaixo constam os payloads representativos para execução das operações de **
 
 ### B. CRUD de Usuários (`/usuarios`)
 * **Create (`POST /usuarios`):**
+  *(Nota de Segurança: O endpoint público sempre força o papel para `CIDADAO`, impedindo elevação de privilégios).*
   ```json
   {
     "nome": "Mariana Souza Santos",
@@ -249,8 +279,8 @@ Abaixo constam os payloads representativos para execução das operações de **
     }
   }
   ```
-* **Read (`GET /usuarios?page=0&size=10`):** Retorna lista paginada de usuários.
-* **Update (`PUT /usuarios/1`):**
+* **Read (`GET /usuarios?page=0&size=10`):** Retorna lista paginada de munícipes cadastrados.
+* **Update (`PUT /usuarios/2`):**
   ```json
   {
     "nome": "Mariana Souza Santos Atualizada",
@@ -264,10 +294,11 @@ Abaixo constam os payloads representativos para execução das operações de **
     }
   }
   ```
-* **Delete (`DELETE /usuarios/1`):** Remove o registro indicado.
+* **Delete (`DELETE /usuarios/2`):** Remove o registro do usuário (bloqueado se houver chamados vinculados para preservar integridade referencial).
 
 ### C. CRUD de Chamados de Zeladoria (`/chamados`)
 * **Create (`POST /chamados`):**
+  *(Requisito obrigatório: envio com foto para análise da IA e comprovante urbano).*
   ```json
   {
     "titulo": "Buraco profundo na via pública",
@@ -281,7 +312,7 @@ Abaixo constam os payloads representativos para execução das operações de **
     "cidade": "São Paulo",
     "uf": "SP",
     "cep": "01311000",
-    "urlFoto": "https://zelafix.storage/fotos/buraco_paulista_01.jpg"
+    "urlFoto": "https://raw.githubusercontent.com/Global-Solution-CitizenTech/DevOps-Tools-Cloud-Computing/main/docs/rua-esburacada.png"
   }
   ```
 * **Read (`GET /chamados?page=0&size=10&sort=dtAbertura,desc`):** Retorna ocorrências paginadas e ordenadas.
@@ -299,63 +330,69 @@ Abaixo constam os payloads representativos para execução das operações de **
     "cidade": "São Paulo",
     "uf": "SP",
     "cep": "01311000",
-    "urlFoto": "https://zelafix.storage/fotos/buraco_paulista_02.jpg"
+    "urlFoto": "https://raw.githubusercontent.com/Global-Solution-CitizenTech/DevOps-Tools-Cloud-Computing/main/docs/rua-esburacada.png"
   }
   ```
-* **Apoiar / Votar (`POST /chamados/1/apoiar`):** Registra o apoio da comunidade para priorização.
+* **Apoiar / Votar (`POST /chamados/1/apoiar`):** Registra o apoio da comunidade para priorização urbana (dispara evento para o RabbitMQ).
 * **Delete (`DELETE /chamados/1`):** Cancela ou remove o chamado.
 
 ---
 
-## 7. 🎥 Roteiro Sequencial para Gravação do Vídeo de Demonstração
+## 8. 🎥 Roteiro Sequencial para Gravação do Vídeo de Demonstração
 
 Para atender estritamente aos 10 passos obrigatórios exigidos pelo edital da Global Solution 2 e garantir pontuação máxima (sem sofrer penalidades de 20 a 30 pontos), a gravação do vídeo narrado por voz deve seguir esta ordem cronológica:
 
 | Passo | Tela / Ferramenta | O que Fazer e Narrar | Requisito do Edital Atendido |
 |:---:|:---|:---|:---|
-| **1** | Navegador (README) | Apresentar o `README.md`, contextualizar a proposta CitizenTech (ZelaFix), os integrantes e explicar o desenho macro da arquitetura em nuvem. | *Roteiro Passo 1* |
-| **2** | Portal Microsoft Azure | Exibir o Resource Group `rg-zelafix`, o App Service Plan `asp-zelafix` (F1 Free) e o Web App criados pelos scripts Azure CLI. | *Roteiro Passo 2* |
-| **3** | Azure Boards | Acessar o Azure Boards e criar uma nova Tarefa (ex: *"Ajuste descritivo da API ZelaFix no endpoint info"*). | *Roteiro Passo 3* |
+| **1** | Navegador (README) | Apresentar o `README.md`, contextualizar a proposta CitizenTech (ZelaFix), os integrantes e explicar o desenho macro da arquitetura em nuvem e mensageria. | *Roteiro Passo 1* |
+| **2** | Portal Microsoft Azure | Exibir o Resource Group `rg-zelafix`, o App Service Plan `asp-zelafix` (F1 Free) e os dois Web Apps (`app-zelafix` e `app-zelafix-worker`) criados pelo script Azure CLI. | *Roteiro Passo 2* |
+| **3** | Azure Boards | Acessar o Azure Boards e criar uma nova Tarefa (ex: *"Ajuste de mensagem da API ZelaFix no endpoint info"*). | *Roteiro Passo 3* |
 | **4** | IDE / Terminal Git | Criar uma nova branch a partir da tarefa no Boards, realizar uma alteração visível no **código-fonte** da aplicação Java (ex: adicionar mensagem em um controller ou no actuator), commitar e enviar para o repositório. *(Atenção: NÃO alterar apenas README)*. | *Roteiro Passo 4* |
 | **5** | Azure Repos | Abrir o Pull Request vinculando a Tarefa do Boards, aprovar a PR e concluir o Merge para a branch principal `main`. Mostrar o gatilho automático disparando a pipeline de CI. | *Roteiro Passo 5* |
-| **6** | Azure Pipelines (CI) | Acompanhar a execução da esteira de CI: destacar a compilação Gradle, a execução dos testes JUnit com 100% de sucesso e a geração do artefato `drop/app.jar`. | *Roteiro Passo 6* |
-| **7** | Azure Pipelines (CD) | Demonstrar o início automático do estágio de Release (CD) publicando o binário no Azure App Service. | *Roteiro Passo 7* |
+| **6** | Azure Pipelines (CI) | Acompanhar a execução da esteira de CI: destacar a compilação Gradle Multi-Project, a execução dos 186 testes JUnit com 100% de sucesso e a geração dos artefatos `drop/zelafix-api.jar` e `drop/zelafix-worker.jar`. | *Roteiro Passo 6* |
+| **7** | Azure Pipelines (CD) | Demonstrar o início automático do estágio de Release (CD) publicando os binários nos Azure App Services. | *Roteiro Passo 7* |
 | **8** | Portal Azure / Navegador | Acessar a URL do Web App em nuvem (`https://app-zelafix-561432.azurewebsites.net`) e evidenciar que a alteração realizada no código já está online e ativa. | *Roteiro Passo 8* |
 | **9** | Swagger UI + Cliente SQL (DBeaver/SQL Developer) | **Gravação contínua sem cortes:** Executar operações completas de CRUD (Create, Read, Update, Delete) em pelo menos duas tabelas distintas (`USUARIO` e `CHAMADO`). Imediatamente após cada operação, rodar comandos `SELECT * FROM ...` diretamente no banco Oracle da FIAP provando a persistência real dos dados em nuvem. | *Roteiro Passo 9 (Penalidade grave se ausente)* |
 | **10** | Azure Boards | Retornar ao Azure Boards e exibir a Tarefa concluída com todo o histórico de vínculos associados (Branch, Commits e Pull Request rastreados). | *Roteiro Passo 10* |
 
 ---
 
-## 8. ✅ Matriz de Conformidade com os Requisitos Técnicos
+## 9. ✅ Matriz de Conformidade com os Requisitos Técnicos
 
 | Requisito | Descrição Oficial | Status | Evidência no Repositório |
 |:---:|:---|:---:|:---|
-| **01** | Repositório Git privado e versionado | ✅ Atendido | Repositório privado com controle de versão Git |
+| **01** | Repositório Git privado e versionado | ✅ Atendido | Repositório privado com controle de versão Git e espelhamento GitHub ↔ Azure Repos |
 | **02** | Azure Boards vinculado ao Repos com rastreabilidade | ✅ Atendido | Work Items vinculados a branches, commits e PRs |
 | **03** | Branch `main` protegida por políticas (revisor e work item) | ✅ Atendido | Políticas de branch configuradas com revisor e restrição de push direto |
 | **04** | Pipeline de CI disparada apenas após Merge via PR na `main` | ✅ Atendido | Configurado no gatilho do `azure-pipelines.yml` |
 | **05** | Aluno autorizado a aprovar a própria PR (simulação acadêmica) | ✅ Atendido | Habilitado nas permissões de branch policies |
 | **06** | Pipeline de Release executa automaticamente após CI | ✅ Atendido | Estágio `Deploy` condicionado ao sucesso do estágio `Build` |
-| **07** | Deploy da aplicação via PaaS (App Service) | ✅ Atendido | Azure App Service Linux (PaaS) |
+| **07** | Deploy da aplicação via PaaS (App Service) | ✅ Atendido | Azure App Service Linux (PaaS) em plano F1 |
 | **08** | Banco de dados hospedado em nuvem (Oracle FIAP Cloud) | ✅ Atendido | Oracle Database 19c Corporativo FIAP Cloud |
-| **09** | Scripts de infraestrutura versionados no repositório | ✅ Atendido | [`script-provisionamento.sh`](./scripts/script-provisionamento.sh) |
-| **10** | DDL dos objetos de banco de dados documentados | ✅ Atendido | Schema corporativo 3FN Oracle |
-| **11** | Scripts de automação Azure CLI | ✅ Atendido | [`script-provisionamento.sh`](./scripts/script-provisionamento.sh) |
-| **12** | Arquivo de pipeline CI/CD na raiz do repositório | ✅ Atendido | [`azure-pipelines.yml`](./azure-pipelines.yml) |
-| **13** | Payloads JSON de exemplo para teste de CRUD no README | ✅ Atendido | Documentados na Seção 6 |
-| **14** | Utilização de variáveis de ambiente sem senhas em texto puro | ✅ Atendido | Parametrização via secrets no Azure DevOps e Application Settings |
-| **15** | Desenho macro da arquitetura em nuvem (diagrama e fluxo) | ✅ Atendido | Diagramas ASCII e descrições documentadas na Seção 2 |
-| **16** | Execução de testes 100% automática na esteira de CI | ✅ Atendido | Execução de testes JUnit e publicação via `PublishTestResults@2` |
+| **09** | Scripts de infraestrutura versionados no repositório | ✅ Atendido | [`scripts/script-provisionamento.sh`](./scripts/script-provisionamento.sh) |
+| **10** | DDL dos objetos de banco de dados documentados | ✅ Atendido | [`scripts/script-bd.sql`](./scripts/script-bd.sql) com 11 tabelas 3FN |
+| **11** | Scripts de automação Azure CLI | ✅ Atendido | [`scripts/script-provisionamento.sh`](./scripts/script-provisionamento.sh) |
+| **12** | Dockerfiles na pasta `/dockerfiles` | ✅ Atendido | [`dockerfiles/Dockerfile.api`](./dockerfiles/Dockerfile.api) e [`dockerfiles/Dockerfile.worker`](./dockerfiles/Dockerfile.worker) |
+| **13** | Arquivo de pipeline CI/CD na raiz do repositório | ✅ Atendido | [`azure-pipelines.yml`](./azure-pipelines.yml) |
+| **14** | Payloads JSON de exemplo para teste de CRUD no README | ✅ Atendido | Documentados na Seção 7 |
+| **15** | Utilização de variáveis de ambiente sem senhas em texto puro | ✅ Atendido | Parametrização via secrets no Azure DevOps e Application Settings |
+| **16** | Desenho macro da arquitetura em nuvem (diagrama e fluxo) | ✅ Atendido | Diagramas ASCII e descrições documentadas na Seção 2 |
+| **17** | Execução de testes 100% automática na esteira de CI | ✅ Atendido | Execução de 186 testes JUnit e publicação via `PublishTestResults@2` |
 
 ---
 
-## 9. 📁 Estrutura de Arquivos deste Repositório
+## 10. 📁 Estrutura de Arquivos deste Repositório
 
-```
+```text
 DevOps-Tools-Cloud-Computing/
-├── docs/                               # Diagramas e documentações complementares em PDF/PNG
-├── azure-pipelines.yml                 # Definição oficial da esteira CI/CD (Build, Testes, Artefato e Deploy)
-├── script-provisionamento.sh           # Script Bash (Azure CLI) para criação do RG, App Service Plan e Web App
+├── dockerfiles/
+│   ├── Dockerfile.api                  # Dockerfile da API REST (Temurin 21 JRE Alpine)
+│   └── Dockerfile.worker               # Dockerfile do Worker Assíncrono de IA (Temurin 21 JRE Alpine)
+├── docs/                               # Diagramas, evidências e imagens de apoio (rua-esburacada.png)
+├── scripts/
+│   ├── script-bd.sql                   # DDL oficial Oracle 19c com 11 tabelas em 3FN e constraints
+│   └── script-provisionamento.sh       # Script Bash (Azure CLI) declarativo para provisionamento do RG, Plan e Web Apps
+├── azure-pipelines.yml                 # Definição oficial da esteira CI/CD (Build, Testes, Artefatos e Deploy)
 └── README.md                           # Documentação técnica consolidada da disciplina
 ```
 
