@@ -80,93 +80,11 @@ O **ZelaFix** é uma plataforma corporativa de **zeladoria urbana colaborativa**
 
 ## 2. 🏛️ Arquitetura da Solução & Diagrama do Fluxo CI/CD
 
-```
-+-----------------------------------------------------------------------------------------------------------------+
-|                              ARQUITETURA EM NUVEM MICROSOFT AZURE & ESTEIRA CI/CD                               |
-+-----------------------------------------------------------------------------------------------------------------+
+<p align="center">
+  <img src="./docs/gs2-zelafix-diagrama.png" alt="Arquitetura em Nuvem Microsoft Azure & Esteira CI/CD ZelaFix" width="100%" />
+</p>
 
-  [🧑‍💻 Desenvolvedor]
-          │
-          │ [1] git push origin feature/tarefa-boards (GitHub)
-          ▼
-  ┌────────────────────────────────────────────────────────────┐
-  │  GitHub Actions (mirror-to-azure.yml)                      │
-  │  • Espelhamento automático instantâneo para o Azure Repos  │
-  └─────────────────────────────┬──────────────────────────────┘
-                                │ [2] Sincronização automática
-                                ▼
-  ┌────────────────────────────────────────────────────────────┐
-  │  Azure Repos (Branch Feature -> Pull Request na 'main')    │
-  │  • Política de Branch: Revisor Obrigatório + Work Item     │
-  └─────────────────────────────┬──────────────────────────────┘
-                                │ [3] Merge aprovado na branch 'main'
-                                ▼
-  ┌─────────────────────────────────────────────────────────────────────────────────┐
-  │ AZURE DEVOPS PIPELINES (ZelaFix CI/CD — Multi-Service)                          │
-  │                                                                                 │
-  │   ┌─────────────────────────────────────────────────────────────────────────┐   │
-  │   │ ETAPA 1: CI (Continuous Integration) — Agente Pool 'Default'            │   │
-  │   │                                                                         │   │
-  │   │   [4] Compilação Gradle Multi-Project:                                  │   │
-  │   │       `call gradlew.bat clean test bootJar --no-daemon`                 │   │
-  │   │                                                                         │   │
-  │   │   [5] Execução da Suíte de Testes Automatizados (186 testes JUnit)      │   │
-  │   │                                                                         │   │
-  │   │   [6] Publicação de Resultados de Testes XML:                           │   │
-  │   │       `PublishTestResults@2` -> Relatório nativo no Azure DevOps        │   │
-  │   │                                                                         │   │
-  │   │   [7] Empacotamento e Publicação de Artefatos:                          │   │
-  │   │       • zelafix-api.jar (Porta 8080)                                    │   │
-  │   │       • zelafix-worker.jar (Porta 8081)                                 │   │
-  │   │       `PublishBuildArtifacts@1` -> Container de artefato: drop/         │   │
-  │   └────────────────────────────────────┬────────────────────────────────────┘   │
-  │                                        │                                        │
-  │                                        │ [8] Disparo Automático de Release (CD) │
-  │                                        ▼                                        │
-  │   ┌─────────────────────────────────────────────────────────────────────────┐   │
-  │   │ ETAPA 2: CD (Continuous Deployment) — Deploy nos Azure Web Apps         │   │
-  │   │                                                                         │   │
-  │   │   [9] Task `AzureWebApp@1` (API):                                       │   │
-  │   │       Deploy atômico de `zelafix-api.jar` no Web App `app-zelafix`      │   │
-  │   │   [10] Task `AzureWebApp@1` (Worker):                                   │   │
-  │   │       Deploy atômico de `zelafix-worker.jar` no Web App `app-worker`    │   │
-  │   └────────────────────────────────────┬────────────────────────────────────┘   │
-  └────────────────────────────────────────┼────────────────────────────────────────┘
-                                           │
-                                           │ Deploy dos Binários JAR Executáveis
-                                           ▼
-  ┌─────────────────────────────────────────────────────────────────────────────────┐
-  │ MICROSOFT AZURE CLOUD (Resource Group: rg-zelafix | Região: East US)            │
-  │ Plano de Serviço: `asp-zelafix` (F1 Free Tier compartilhado - Custo R$ 0)       │
-  │                                                                                 │
-  │   ┌───────────────────────────────────┐ ┌───────────────────────────────────┐   │
-  │   │ Web App: `app-zelafix-561432`     │ │Web App:`app-zelafix-worker-561432`│   |
-  │   │ Runtime: Java 21 (API REST 8080)  │ │ Runtime: Java 21 (Worker 8081)    │   │
-  │   │ Produtor RabbitMQ & Auth JWT      │ │ Consumidor RabbitMQ & Spring AI   │   │
-  │   └─────────────────┬─────────────────┘ └─────────────────┬─────────────────┘   │
-  └─────────────────────┼─────────────────────────────────────┼─────────────────────┘
-                        │                                     │
-                        │ Publica Mensagem                    │ Consome Mensagem
-                        ▼                                     ▼
-        ┌─────────────────────────────────────────────────────────────┐
-        │ CloudAMQP Message Broker (RabbitMQ sob TLS AMQPS na 5671)   │
-        │ • Exchange: `zelafix.direct`                                │
-        │ • Filas: `chamado.triagem.queue` e `chamado.voto.queue`     │
-        │ • Fila de Retorno: `chamado.triagem-concluida.queue`        │
-        └─────────────────────────────────────────────────────────────┘
-                        │
-                        ▼
-                ┌─────────────────────────────────────────────────────┐
-                │ Oracle Database 19c (FIAP Cloud: oracle.fiap.com)   │
-                │ • 11 Tabelas Relacionais 3FN                        │
-                │ • Migrations Flyway aplicadas no boot               │
-                │ • CRUD & Persistência em Nuvem                      │
-                └─────────────────────────────────────────────────────┘
-                                        ▲
-                                        │ HTTPS (Porta 443) / REST / Swagger UI
-                                        │
-                          [📱 Munícipe (Mobile React Native)]
-```
+> *Diagrama arquitetural completo gerado no Draw.io ([docs/gs2-zelafix-diagrama.drawio](./docs/gs2-zelafix-diagrama.drawio)) ilustrando o espelhamento GitHub ↔ Azure Repos, governança no Azure Boards, esteira CI/CD multi-service no Azure Pipelines, mensageria CloudAMQP TLS, persistência Oracle 19c e integração de visão multimodal com Groq API.*
 
 ### 🔢 Descrição Detalhada das 10 Etapas da Esteira:
 
