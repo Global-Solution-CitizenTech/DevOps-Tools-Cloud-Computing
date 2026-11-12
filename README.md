@@ -57,8 +57,8 @@ O **ZelaFix** é uma plataforma corporativa de **zeladoria urbana colaborativa**
 ### Principais Pilares da Solução:
 * **Canal Cidadão:** Abertura simplificada de ocorrências georreferenciadas com fotos e descrição detalhada.
 * **Engajamento Comunitário:** Sistema de apoio e votos por munícipes da mesma região para priorização coletiva de chamados perante a administração pública.
-* **Painel da Gestão Municipal:** Rastreabilidade do ciclo de vida dos chamados (`ABERTO`, `EM_ANALISE`, `EM_ANDAMENTO`, `CONCLUIDO`, `CANCELADO`) com histórico cronológico auditável.
-* **Triagem Inteligente Desacoplada:** Triagem automatizada via LLM multimodal (Groq / Qwen 2.5 32B) processada de forma assíncrona pelo microsserviço Worker via RabbitMQ, sem onerar a API REST nem o banco relacional.
+* **Painel da Gestão Municipal:** Rastreabilidade do ciclo de vida dos chamados (`ABERTO`, `PENDENTE`, `EM_ANALISE`, `EM_EXECUCAO`, `CONCLUIDO`, `REJEITADO`) com histórico cronológico auditável.
+* **Triagem Inteligente Desacoplada:** Triagem automatizada via LLM multimodal (Groq / Qwen 3.8 27B Vision) processada de forma assíncrona pelo microsserviço Worker via RabbitMQ, sem onerar a API REST nem o banco relacional.
 
 ### 🛠️ Stack Tecnológica & Decisões de Engenharia
 
