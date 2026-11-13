@@ -49,10 +49,14 @@ if [ -z "$RABBITMQ_URI" ]; then
   exit 1
 fi
 
-# Spring AI (Groq API - lidos do .env)
-GROQ_API_KEY="${GROQ_API_KEY:-}"
-GROQ_BASE_URL="${GROQ_BASE_URL:-https://api.groq.com/openai/v1}"
-GROQ_MODEL="${GROQ_MODEL:-qwen/qwen3.8-27b}"
+# Spring AI (Azure AI Foundry - Phi-4 Multimodal)
+AI_ACCOUNT_NAME="${AI_ACCOUNT_NAME:-ai-zelafix-561432}"
+AI_DEPLOYMENT_NAME="${AI_DEPLOYMENT_NAME:-phi-4-multimodal}"
+AI_MODEL_NAME="${AI_MODEL_NAME:-Phi-4-multimodal-instruct}"
+AI_MODEL_VERSION="${AI_MODEL_VERSION:-1}"
+AI_BASE_URL="${AI_BASE_URL:-https://${AI_ACCOUNT_NAME}.services.ai.azure.com/openai/v1}"
+AI_MODEL="${AI_MODEL:-${AI_DEPLOYMENT_NAME}}"
+AI_API_KEY="${AI_API_KEY:-}"
 
 # Configuração de Memória Otimizada para o Free Tier F1 (1 GB RAM compartilhado)
 # -Xms256m -Xmx512m impede estouro de cgroup / OOMKilled no container Linux
@@ -107,6 +111,40 @@ az appservice plan create \
   --is-linux \
   --sku "$SKU" \
   --output table
+
+# -----------------------------------------------------------------------------
+# 2.5. Criação do Azure AI Foundry (AIServices) & Deployment Phi-4 Multimodal
+# -----------------------------------------------------------------------------
+echo ""
+echo "▶ [2.5/4] Verificando / Criando Azure AI Foundry ($AI_ACCOUNT_NAME)..."
+if ! az cognitiveservices account show --name "$AI_ACCOUNT_NAME" --resource-group "$RESOURCE_GROUP" >/dev/null 2>&1; then
+  az cognitiveservices account create \
+    --name "$AI_ACCOUNT_NAME" \
+    --resource-group "$RESOURCE_GROUP" \
+    --location "$LOCATION" \
+    --kind "AIServices" \
+    --sku "S0" \
+    --custom-domain "$AI_ACCOUNT_NAME" \
+    --yes \
+    --output table
+fi
+
+if ! az cognitiveservices account deployment show --name "$AI_ACCOUNT_NAME" --resource-group "$RESOURCE_GROUP" --deployment-name "$AI_DEPLOYMENT_NAME" >/dev/null 2>&1; then
+  az cognitiveservices account deployment create \
+    --name "$AI_ACCOUNT_NAME" \
+    --resource-group "$RESOURCE_GROUP" \
+    --deployment-name "$AI_DEPLOYMENT_NAME" \
+    --model-name "$AI_MODEL_NAME" \
+    --model-version "$AI_MODEL_VERSION" \
+    --model-format "Microsoft" \
+    --sku-name "GlobalStandard" \
+    --sku-capacity 20 \
+    --output table
+fi
+
+if [ -z "$AI_API_KEY" ]; then
+  AI_API_KEY=$(az cognitiveservices account keys list --name "$AI_ACCOUNT_NAME" --resource-group "$RESOURCE_GROUP" --query "key1" -o tsv)
+fi
 
 # -----------------------------------------------------------------------------
 # 3. Criação dos Azure Web Apps (API + Worker) - Runtime Java 21
@@ -180,9 +218,9 @@ az webapp config appsettings set \
     JAVA_OPTS="$JAVA_OPTS" \
     RABBITMQ_CONCURRENCY="$RABBITMQ_CONCURRENCY" \
     SPRING_RABBITMQ_ADDRESSES="$RABBITMQ_URI" \
-    GROQ_API_KEY="$GROQ_API_KEY" \
-    GROQ_BASE_URL="$GROQ_BASE_URL" \
-    GROQ_MODEL="$GROQ_MODEL" \
+    AI_API_KEY="$AI_API_KEY" \
+    AI_BASE_URL="$AI_BASE_URL" \
+    AI_MODEL="$AI_MODEL" \
   --output table
 
 # -----------------------------------------------------------------------------
