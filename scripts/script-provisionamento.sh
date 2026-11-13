@@ -162,6 +162,7 @@ az webapp config appsettings set \
     FLYWAY_ENABLED="$FLYWAY_ENABLED" \
     JAVA_OPTS="$JAVA_OPTS" \
     SPRING_RABBITMQ_ADDRESSES="$RABBITMQ_URI" \
+    WORKER_URL="https://${WEB_APP_WORKER_NAME}.azurewebsites.net" \
   --output table
 
 echo ""
