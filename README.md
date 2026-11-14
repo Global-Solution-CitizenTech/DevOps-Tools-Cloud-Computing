@@ -62,7 +62,7 @@ O **ZelaFix** é uma plataforma corporativa de **zeladoria urbana colaborativa**
 ### Principais Pilares da Solução:
 * **Canal Cidadão:** Abertura simplificada de ocorrências georreferenciadas com fotos e descrição detalhada.
 * **Engajamento Comunitário:** Sistema de apoio e votos por munícipes da mesma região para priorização coletiva de chamados perante a administração pública.
-* **Painel da Gestão Municipal:** Rastreabilidade do ciclo de vida dos chamados (`ABERTO`, `PENDENTE`, `EM_ANALISE`, `EM_EXECUCAO`, `CONCLUIDO`, `REJEITADO`) com histórico cronológico auditável.
+* **Painel da Gestão Municipal:** Rastreabilidade do ciclo de vida dos chamados (`PENDENTE`, `EM_ANALISE`, `EM_EXECUCAO`, `CONCLUIDO`, `REJEITADO`) com histórico cronológico auditável.
 * **Triagem Inteligente Desacoplada:** Triagem automatizada via LLM multimodal (Azure AI Foundry — `Phi-4-multimodal-instruct`) processada de forma assíncrona pelo microsserviço Worker via RabbitMQ, sem onerar a API REST nem o banco relacional.
 
 ### 🛠️ Stack Tecnológica & Decisões de Engenharia
@@ -72,10 +72,10 @@ O **ZelaFix** é uma plataforma corporativa de **zeladoria urbana colaborativa**
 | **Linguagem & Runtime** | Java 21 LTS | Runtime corporativo oficial com virtual threads e alta performance |
 | **Framework Base** | Spring Boot 4.1.1 | Ecossistema moderno com Spring Data JPA, Security, Actuator e Spring AI 2.0.1 |
 | **Gerenciador de Build** | Gradle Multi-Project (Gradle 8.10) | Compilação e testes atômicos no CI em 1 comando; artefatos JAR isolados e desacoplados |
-| **Banco de Dados Relacional** | Oracle Database 19c (FIAP Cloud) | 11 tabelas em 3ª Forma Normal (3FN), migrations automatizadas via Flyway |
+| **Banco de Dados Relacional** | Oracle Database 19c (FIAP Cloud) | 13 tabelas em 3ª Forma Normal (3FN), migrations automatizadas via Flyway |
 | **Message Broker** | CloudAMQP (RabbitMQ TLS 5671) | Comunicação assíncrona de eventos na nuvem com plano gratuito Lemon |
 | **Nuvem de Hospedagem** | Microsoft Azure App Service (Linux) | Host PaaS com plano **F1 (Free Tier)** para execução contínua sem custos |
-| **Esteira de CI/CD** | Azure DevOps Pipelines | Automação completa: compilação, 186 testes unitários/integrados, artefatos e deploy |
+| **Esteira de CI/CD** | Azure DevOps Pipelines | Automação completa: compilação, 211 testes unitários/integrados, artefatos e deploy |
 | **Espelhamento Contínuo** | GitHub Actions (`mirror-to-azure.yml`) | Push no GitHub sincroniza imediatamente e automaticamente com o Azure Repos |
 | **Agente de Execução** | Self-Hosted Agent (Windows) / Microsoft-Hosted | Pool `Default` dedicado para build e testes sem restrições de concorrência ou cotas |
 | **Infraestrutura como Código (IaC)** | Azure CLI / Bash | Provisionamento declarativo e idempotente do Resource Group, Plan e Web Apps |
@@ -97,7 +97,7 @@ O **ZelaFix** é uma plataforma corporativa de **zeladoria urbana colaborativa**
 2. **Políticas de Branch no Azure Repos:** A branch principal `main` é estritamente protegida: exige Work Item do Boards vinculado e aprovação de revisor antes de qualquer merge.
 3. **Merge Aprovado na `main`:** Ao completar o Pull Request na `main`, o gatilho nativo (`individualCI`) do `azure-pipelines.yml` é disparado automaticamente.
 4. **Alocação do Agente de Build:** O agente aloca o job em ambiente com JDK 21 e Gradle Wrapper.
-5. **Compilação e Testes Automatizados:** O comando Gradle compila ambos os submódulos (`zelafix-api` e `zelafix-worker`), gera chaves RSA dinâmicas e executa os 186 testes automatizados JUnit 5.
+5. **Compilação e Testes Automatizados:** O comando Gradle compila ambos os submódulos (`zelafix-api` e `zelafix-worker`), gera chaves RSA dinâmicas e executa os 211 testes automatizados JUnit 5 (`181` da API + `30` do Worker).
 6. **Publicação dos Testes:** A tarefa `PublishTestResults@2` lê os arquivos XML gerados e disponibiliza a aba nativa de relatórios de testes no Azure DevOps.
 7. **Empacotamento e Publicação de Artefatos:** Os arquivos `zelafix-api.jar` e `zelafix-worker.jar` são consolidados no container de artefatos `'drop'` via `PublishBuildArtifacts@1`.
 8. **Disparo do Estágio CD:** A etapa de Release é executada automaticamente mediante aprovação e sucesso total do estágio de Build.
@@ -112,8 +112,8 @@ O backend utiliza o banco de dados corporativo **Oracle Database 19c** hospedado
 
 * **Host / Conexão:** `jdbc:oracle:thin:@//oracle.fiap.com.br:1521/orcl`
 * **Schema / Usuário:** `RM561432`
-* **Script DDL Oficial:** [`scripts/script-bd.sql`](./scripts/script-bd.sql) (DDL integral contendo 11 tabelas em 3ª Forma Normal, sequences e constraints conforme o Data Modeler `citizenTech.ddl`).
-* **Migrations Automatizadas (Flyway):** Executadas na inicialização da API (`V1__criar_tabelas_zelafix.sql`, `V2__dados_iniciais_zelafix.sql` e `V3__admin_inicial.sql`), garantindo versionamento idempotente e seguro do banco.
+* **Script DDL Oficial:** [`scripts/script-bd.sql`](./scripts/script-bd.sql) (DDL Oracle 19c com sequences, constraints e tabelas conforme o Data Modeler `citizenTech.ddl`).
+* **Migrations Automatizadas (Flyway):** Executadas na inicialização da API (`V1__criar_tabelas_zelafix.sql` com 13 tabelas em 3FN, `V2__admin_inicial.sql` com domínios base e admin, `V3__dados_iniciais_zelafix.sql`), garantindo versionamento idempotente e seguro do banco.
 
 ---
 
@@ -177,14 +177,14 @@ O repositório conta com definições Docker otimizadas na pasta [`dockerfiles/`
 
 Abaixo constam os payloads representativos para execução das operações de **CRUD** nas entidades principais:
 
-### A. Autenticação (`POST /auth/login`)
+### A. Autenticação (`POST /login`)
 ```json
 {
-  "email": "admin@zelafix.sp.gov.br",
-  "senha": "admin"
+  "email": "admin@zelafix.com.br",
+  "senha": "123mudar"
 }
 ```
-*Retorna o token `Bearer eyJhbGciOiJSUzI1NiIsIn...` utilizado no header `Authorization` das requisições subsequentes.*
+*Retorna `{ "token": "eyJhbGciOiJSUzI1NiIsIn...", "user": { ... } }`, onde `token` é enviado no header `Authorization: Bearer ...` das requisições subsequentes.*
 
 ### B. CRUD de Usuários (`/usuarios`)
 * **Create (`POST /usuarios`):**
@@ -194,66 +194,36 @@ Abaixo constam os payloads representativos para execução das operações de **
     "nome": "Mariana Souza Santos",
     "email": "mariana.santos@email.com",
     "senha": "SenhaForte@2026",
-    "cpf": "12345678909",
-    "cargo": "CIDADAO",
     "telefone": {
-      "ddd": 11,
-      "numero": 987654321
+      "ddd": "11",
+      "numero": "987654321"
+    },
+    "endereco": {
+      "cep": "01311000",
+      "numero": "1106",
+      "referencia": "Em frente ao parque"
     }
   }
   ```
-* **Read (`GET /usuarios?page=0&size=10`):** Retorna lista paginada de munícipes cadastrados.
-* **Update (`PUT /usuarios/2`):**
-  ```json
-  {
-    "nome": "Mariana Souza Santos Atualizada",
-    "email": "mariana.atualizada@email.com",
-    "senha": "SenhaForte@2026",
-    "cpf": "12345678909",
-    "cargo": "CIDADAO",
-    "telefone": {
-      "ddd": 11,
-      "numero": 999887766
-    }
-  }
-  ```
-* **Delete (`DELETE /usuarios/2`):** Remove o registro do usuário (bloqueado se houver chamados vinculados para preservar integridade referencial).
+* **Read (`GET /usuarios?page=0&size=20`):** Retorna lista paginada de munícipes cadastrados (`ADMIN`).
+* **Update (`PUT /usuarios/me`):** Atualiza dados cadastrais e endereço do usuário autenticado.
+* **Delete (`DELETE /usuarios/{id}`):** Remove o registro do usuário (`ADMIN`).
 
 ### C. CRUD de Chamados de Zeladoria (`/chamados`)
-* **Create (`POST /chamados`):**
-  *(Requisito obrigatório: envio com foto para análise da IA e comprovante urbano).*
-  ```json
-  {
-    "titulo": "Buraco profundo na via pública",
-    "descricao": "Buraco de grandes proporções no asfalto próximo ao cruzamento, causando risco iminente de acidentes para carros e motociclistas.",
-    "idCategoria": 1,
-    "latitude": -23.55052,
-    "longitude": -46.633308,
-    "logradouro": "Avenida Paulista",
-    "numero": "1106",
-    "bairro": "Bela Vista",
-    "cidade": "São Paulo",
-    "uf": "SP",
-    "cep": "01311000",
-    "urlFoto": "https://raw.githubusercontent.com/Global-Solution-CitizenTech/DevOps-Tools-Cloud-Computing/main/docs/rua-esburacada.png"
-  }
-  ```
-* **Read (`GET /chamados?page=0&size=10&sort=dtAbertura,desc`):** Retorna ocorrências paginadas e ordenadas.
+* **Create (`POST /chamados` — `multipart/form-data`):**
+  *(Requisito obrigatório: envio dos campos de endereço `cep`, `numero`, `referencia`, `rua` opcional e parte binária `foto`; a requisição aguarda via `DeferredResult` o parecer da Spring AI no RabbitMQ).*
+* **Read (`GET /chamados?page=0&size=20&sort=dtAbertura,desc`):** Retorna ocorrências paginadas e ordenadas.
 * **Update (`PUT /chamados/1`):**
   ```json
   {
     "titulo": "Buraco profundo na via pública (Risco Elevado)",
     "descricao": "Buraco aumentou de tamanho após as chuvas recentes, requer intervenção urgente da subprefeitura.",
-    "idCategoria": 1,
-    "latitude": -23.55052,
-    "longitude": -46.633308,
-    "logradouro": "Avenida Paulista",
-    "numero": "1106",
-    "bairro": "Bela Vista",
-    "cidade": "São Paulo",
-    "uf": "SP",
-    "cep": "01311000",
-    "urlFoto": "https://raw.githubusercontent.com/Global-Solution-CitizenTech/DevOps-Tools-Cloud-Computing/main/docs/rua-esburacada.png"
+    "categoria": "VIAS_E_PAVIMENTACAO",
+    "endereco": {
+      "cep": "01311000",
+      "numero": "1106",
+      "referencia": "Esquina com a Rua Pamplona"
+    }
   }
   ```
 * **Apoiar / Votar (`POST /chamados/1/apoiar`):** Registra o apoio da comunidade para priorização urbana (dispara evento para o RabbitMQ).
@@ -270,7 +240,7 @@ DevOps-Tools-Cloud-Computing/
 │   └── Dockerfile.worker               # Dockerfile do Worker Assíncrono de IA (Temurin 21 JRE Alpine)
 ├── docs/                               # Diagramas, evidências e imagens de apoio
 ├── scripts/
-│   ├── script-bd.sql                   # DDL oficial Oracle 19c com 11 tabelas em 3FN e constraints
+│   ├── script-bd.sql                   # DDL Oracle 19c com tabelas em 3FN e constraints
 │   └── script-provisionamento.sh       # Script Bash (Azure CLI) declarativo para provisionamento do RG, Plan, AI Foundry e Web Apps
 ├── azure-pipelines.yml                 # Definição oficial da esteira CI/CD (Build, Testes, Artefatos e Deploy)
 └── README.md                           # Documentação técnica consolidada
