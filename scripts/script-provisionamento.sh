@@ -37,13 +37,10 @@ WEB_APP_WORKER_NAME="${WEB_APP_WORKER_NAME:-app-zelafix-worker-561432}"
 ORACLE_URL="${ORACLE_URL:-jdbc:oracle:thin:@//oracle.fiap.com.br:1521/orcl}"
 ORACLE_USER="${ORACLE_USER:-}"
 ORACLE_PASS="${ORACLE_PASSWORD:-}"
-FLYWAY_ENABLED="${FLYWAY_ENABLED:-true}"
-JPA_DDL_AUTO="${JPA_DDL_AUTO:-none}"
 
 # RabbitMQ (CloudAMQP - plano gratuito Little Lemur). A URI amqps://USER:SENHA@HOST/VHOST
 # carrega host, credenciais, vhost e TLS; o Spring a le via SPRING_RABBITMQ_ADDRESSES.
 RABBITMQ_URI="${RABBITMQ_URI:-}"
-RABBITMQ_CONCURRENCY="${RABBITMQ_CONCURRENCY:-1}"
 if [ -z "$RABBITMQ_URI" ]; then
   echo "❌ RABBITMQ_URI não definida no .env (ex.: amqps://usuario:senha@host.cloudamqp.com/vhost)."
   exit 1
@@ -191,16 +188,12 @@ az webapp config appsettings set \
   --resource-group "$RESOURCE_GROUP" \
   --name "$WEB_APP_NAME" \
   --settings \
-    PORT="8080" \
     WEBSITES_PORT="8080" \
     ORACLE_URL="$ORACLE_URL" \
     ORACLE_USER="$ORACLE_USER" \
     ORACLE_PASSWORD="$ORACLE_PASS" \
-    JPA_DDL_AUTO="$JPA_DDL_AUTO" \
-    FLYWAY_ENABLED="$FLYWAY_ENABLED" \
     JAVA_OPTS="$JAVA_OPTS" \
     SPRING_RABBITMQ_ADDRESSES="$RABBITMQ_URI" \
-    WORKER_URL="https://${WEB_APP_WORKER_NAME}.azurewebsites.net" \
   --output table
 
 echo ""
@@ -212,11 +205,8 @@ az webapp config appsettings set \
   --resource-group "$RESOURCE_GROUP" \
   --name "$WEB_APP_WORKER_NAME" \
   --settings \
-    WORKER_PORT="8081" \
-    PORT="8081" \
     WEBSITES_PORT="8081" \
     JAVA_OPTS="$JAVA_OPTS" \
-    RABBITMQ_CONCURRENCY="$RABBITMQ_CONCURRENCY" \
     SPRING_RABBITMQ_ADDRESSES="$RABBITMQ_URI" \
     AI_API_KEY="$AI_API_KEY" \
     AI_BASE_URL="$AI_BASE_URL" \
