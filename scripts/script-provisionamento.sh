@@ -30,8 +30,8 @@ PLAN_NAME="${PLAN_NAME:-asp-zelafix}"
 SKU="${SKU:-F1}"
 
 # Nomes dos Azure Web Apps
-WEB_APP_NAME="${WEB_APP_NAME:-app-zelafix-561432}"
-WEB_APP_WORKER_NAME="${WEB_APP_WORKER_NAME:-app-zelafix-worker-561432}"
+WEB_APP_NAME="${WEB_APP_NAME:-app-zelafix}"
+WEB_APP_WORKER_NAME="${WEB_APP_WORKER_NAME:-app-zelafix-worker}"
 
 # Conexões e Parâmetros de Banco de Dados (Oracle FIAP - lidos do .env)
 ORACLE_URL="${ORACLE_URL:-jdbc:oracle:thin:@//oracle.fiap.com.br:1521/orcl}"
