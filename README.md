@@ -25,6 +25,7 @@
 
 | Recurso | Descrição | Link |
 |---|---|---|
+| 📄 **Documentação Oficial (PDF)** | Relatório técnico completo de DevOps Tools & Cloud Computing formatado para avaliação | [Documentação DevOps GS 2 - ZelaFix](./docs/Documentação%20DevOps%20GS%202%20-%20ZelaFix.pdf) |
 | 🌐 **API em Produção (Azure Web App)** | Endpoint base do App Service da API REST (Plano F1 Linux - Porta 8080) | https://app-zelafix-561432.azurewebsites.net |
 | 📖 **Swagger UI Interativo (Produção)** | Console OpenAPI interativo com documentação dos endpoints da API | https://app-zelafix-561432.azurewebsites.net/swagger-ui.html |
 | 🩺 **Actuator Health (API)** | Healthcheck em tempo real da API (Oracle DB + Liveness) | https://app-zelafix-561432.azurewebsites.net/actuator/health |
@@ -239,6 +240,9 @@ DevOps-Tools-Cloud-Computing/
 │   ├── Dockerfile.api                  # Dockerfile da API REST (Temurin 21 JRE Alpine)
 │   └── Dockerfile.worker               # Dockerfile do Worker Assíncrono de IA (Temurin 21 JRE Alpine)
 ├── docs/                               # Diagramas, evidências e imagens de apoio
+│   ├── Documentação DevOps GS 2 - ZelaFix.pdf # Relatório técnico oficial completo da entrega (PDF)
+│   ├── gs2-zelafix-diagrama.drawio     # Fonte editável do diagrama da arquitetura
+│   └── gs2-zelafix-diagrama.png        # Imagem exportada do diagrama arquitetural CI/CD
 ├── scripts/
 │   ├── script-bd.sql                   # DDL Oracle 19c com tabelas em 3FN e constraints
 │   └── script-provisionamento.sh       # Script Bash (Azure CLI) declarativo para provisionamento do RG, Plan e Web Apps (API + Worker)
