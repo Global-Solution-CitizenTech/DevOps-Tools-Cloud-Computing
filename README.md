@@ -241,7 +241,7 @@ DevOps-Tools-Cloud-Computing/
 ├── docs/                               # Diagramas, evidências e imagens de apoio
 ├── scripts/
 │   ├── script-bd.sql                   # DDL Oracle 19c com tabelas em 3FN e constraints
-│   └── script-provisionamento.sh       # Script Bash (Azure CLI) declarativo para provisionamento do RG, Plan, Serviços de IA e Web Apps
+│   └── script-provisionamento.sh       # Script Bash (Azure CLI) declarativo para provisionamento do RG, Plan e Web Apps (API + Worker)
 ├── azure-pipelines.yml                 # Definição oficial da esteira CI/CD (Build, Testes, Artefatos e Deploy)
 └── README.md                           # Documentação técnica consolidada
 ```
