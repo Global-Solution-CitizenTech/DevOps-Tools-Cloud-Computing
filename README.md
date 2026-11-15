@@ -63,7 +63,7 @@ O **ZelaFix** é uma plataforma corporativa de **zeladoria urbana colaborativa**
 * **Canal Cidadão:** Abertura simplificada de ocorrências georreferenciadas com fotos e descrição detalhada.
 * **Engajamento Comunitário:** Sistema de apoio e votos por munícipes da mesma região para priorização coletiva de chamados perante a administração pública.
 * **Painel da Gestão Municipal:** Rastreabilidade do ciclo de vida dos chamados (`PENDENTE`, `EM_ANALISE`, `EM_EXECUCAO`, `CONCLUIDO`, `REJEITADO`) com histórico cronológico auditável.
-* **Triagem Inteligente Desacoplada:** Triagem automatizada via LLM multimodal (Azure AI Foundry — `Phi-4-multimodal-instruct`) processada de forma assíncrona pelo microsserviço Worker via RabbitMQ, sem onerar a API REST nem o banco relacional.
+* **Triagem Inteligente Desacoplada:** Triagem automatizada via LLM multimodal (Azure AI Foundry / OpenAI-compatible, configurável dinamicamente via variáveis de ambiente) processada de forma assíncrona pelo microsserviço Worker via fila RabbitMQ CloudAMQP, sem onerar a API REST nem o banco relacional.
 
 ### 🛠️ Stack Tecnológica & Decisões de Engenharia
 
@@ -89,7 +89,7 @@ O **ZelaFix** é uma plataforma corporativa de **zeladoria urbana colaborativa**
   <img src="./docs/gs2-zelafix-diagrama.png" alt="Arquitetura em Nuvem Microsoft Azure & Esteira CI/CD ZelaFix" width="100%" />
 </p>
 
-> *Diagrama arquitetural completo gerado no Draw.io ([docs/gs2-zelafix-diagrama.drawio](./docs/gs2-zelafix-diagrama.drawio)) ilustrando o espelhamento GitHub ↔ Azure Repos, governança no Azure Boards, esteira CI/CD multi-service no Azure Pipelines, mensageria CloudAMQP TLS, persistência Oracle 19c e integração de visão multimodal com Azure AI Foundry (`phi-4-multimodal`).*
+> *Diagrama arquitetural completo gerado no Draw.io ([docs/gs2-zelafix-diagrama.drawio](./docs/gs2-zelafix-diagrama.drawio)) ilustrando o espelhamento GitHub ↔ Azure Repos, governança no Azure Boards, esteira CI/CD multi-service no Azure Pipelines, mensageria CloudAMQP TLS, persistência Oracle 19c e integração de visão multimodal com Azure AI Foundry (LLM Multimodal).*
 
 ### 🔢 Descrição Detalhada das 10 Etapas da Esteira:
 
