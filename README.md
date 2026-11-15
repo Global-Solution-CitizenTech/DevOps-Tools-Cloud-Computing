@@ -29,7 +29,7 @@
 | 📖 **Swagger UI Interativo (Produção)** | Console OpenAPI interativo com documentação dos endpoints da API | https://app-zelafix-561432.azurewebsites.net/swagger-ui.html |
 | 🩺 **Actuator Health (API)** | Healthcheck em tempo real da API (Oracle DB + Liveness) | https://app-zelafix-561432.azurewebsites.net/actuator/health |
 | ⚙️ **Worker em Produção (Azure Web App)** | Host do Worker Assíncrono de Triagem Inteligente com Spring AI (Porta 8081) | https://app-zelafix-worker-561432.azurewebsites.net |
-| 🩺 **Actuator Health (Worker)** | Healthcheck em tempo real do Worker (RabbitMQ + Azure AI Foundry Liveness) | https://app-zelafix-worker-561432.azurewebsites.net/actuator/health |
+| 🩺 **Actuator Health (Worker)** | Healthcheck em tempo real do Worker (RabbitMQ + Provedor de IA Liveness) | https://app-zelafix-worker-561432.azurewebsites.net/actuator/health |
 | 📊 **OpenAPI Spec (JSON)** | Especificação OpenAPI 3.0 para consumo do app Mobile | https://app-zelafix-561432.azurewebsites.net/v3/api-docs |
 | 🚀 **Projeto no Azure DevOps** | Organização e Projeto Privado com Boards, Repos e Pipelines | https://dev.azure.com/ZelaFixGS/ZelaFix |
 | 💻 **Repositório GitHub (DevOps)** | Repositório de IaC, Dockerfiles e scripts de automação | https://github.com/Global-Solution-CitizenTech/DevOps-Tools-Cloud-Computing |
@@ -63,7 +63,7 @@ O **ZelaFix** é uma plataforma corporativa de **zeladoria urbana colaborativa**
 * **Canal Cidadão:** Abertura simplificada de ocorrências georreferenciadas com fotos e descrição detalhada.
 * **Engajamento Comunitário:** Sistema de apoio e votos por munícipes da mesma região para priorização coletiva de chamados perante a administração pública.
 * **Painel da Gestão Municipal:** Rastreabilidade do ciclo de vida dos chamados (`PENDENTE`, `EM_ANALISE`, `EM_EXECUCAO`, `CONCLUIDO`, `REJEITADO`) com histórico cronológico auditável.
-* **Triagem Inteligente Desacoplada:** Triagem automatizada via LLM multimodal (Azure AI Foundry / OpenAI-compatible, configurável dinamicamente via variáveis de ambiente) processada de forma assíncrona pelo microsserviço Worker via fila RabbitMQ CloudAMQP, sem onerar a API REST nem o banco relacional.
+* **Triagem Inteligente Desacoplada:** Triagem automatizada via LLM multimodal (OpenAI API Compatible, configurável dinamicamente via variáveis de ambiente) processada de forma assíncrona pelo microsserviço Worker via fila RabbitMQ CloudAMQP, sem onerar a API REST nem o banco relacional.
 
 ### 🛠️ Stack Tecnológica & Decisões de Engenharia
 
@@ -89,7 +89,7 @@ O **ZelaFix** é uma plataforma corporativa de **zeladoria urbana colaborativa**
   <img src="./docs/gs2-zelafix-diagrama.png" alt="Arquitetura em Nuvem Microsoft Azure & Esteira CI/CD ZelaFix" width="100%" />
 </p>
 
-> *Diagrama arquitetural completo gerado no Draw.io ([docs/gs2-zelafix-diagrama.drawio](./docs/gs2-zelafix-diagrama.drawio)) ilustrando o espelhamento GitHub ↔ Azure Repos, governança no Azure Boards, esteira CI/CD multi-service no Azure Pipelines, mensageria CloudAMQP TLS, persistência Oracle 19c e integração de visão multimodal com Azure AI Foundry (LLM Multimodal).*
+> *Diagrama arquitetural completo gerado no Draw.io ([docs/gs2-zelafix-diagrama.drawio](./docs/gs2-zelafix-diagrama.drawio)) ilustrando o espelhamento GitHub ↔ Azure Repos, governança no Azure Boards, esteira CI/CD multi-service no Azure Pipelines, mensageria CloudAMQP TLS, persistência Oracle 19c e integração de visão multimodal com Provedor de LLM Multimodal.*
 
 ### 🔢 Descrição Detalhada das 10 Etapas da Esteira:
 
@@ -241,7 +241,7 @@ DevOps-Tools-Cloud-Computing/
 ├── docs/                               # Diagramas, evidências e imagens de apoio
 ├── scripts/
 │   ├── script-bd.sql                   # DDL Oracle 19c com tabelas em 3FN e constraints
-│   └── script-provisionamento.sh       # Script Bash (Azure CLI) declarativo para provisionamento do RG, Plan, AI Foundry e Web Apps
+│   └── script-provisionamento.sh       # Script Bash (Azure CLI) declarativo para provisionamento do RG, Plan, Serviços de IA e Web Apps
 ├── azure-pipelines.yml                 # Definição oficial da esteira CI/CD (Build, Testes, Artefatos e Deploy)
 └── README.md                           # Documentação técnica consolidada
 ```

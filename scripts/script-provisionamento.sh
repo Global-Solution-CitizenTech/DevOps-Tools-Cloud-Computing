@@ -46,10 +46,10 @@ if [ -z "$RABBITMQ_URI" ]; then
   exit 1
 fi
 
-# Spring AI (Azure AI Foundry - Phi-4 Multimodal)
+# Spring AI (Provedor LLM Multimodal)
 AI_ACCOUNT_NAME="${AI_ACCOUNT_NAME:-ai-zelafix-561432}"
-AI_DEPLOYMENT_NAME="${AI_DEPLOYMENT_NAME:-phi-4-multimodal}"
-AI_MODEL_NAME="${AI_MODEL_NAME:-Phi-4-multimodal-instruct}"
+AI_DEPLOYMENT_NAME="${AI_DEPLOYMENT_NAME:-multimodal-model}"
+AI_MODEL_NAME="${AI_MODEL_NAME:-model-multimodal}"
 AI_MODEL_VERSION="${AI_MODEL_VERSION:-1}"
 AI_BASE_URL="${AI_BASE_URL:-https://${AI_ACCOUNT_NAME}.services.ai.azure.com/openai/v1}"
 AI_MODEL="${AI_MODEL:-${AI_DEPLOYMENT_NAME}}"
@@ -110,10 +110,10 @@ az appservice plan create \
   --output table
 
 # -----------------------------------------------------------------------------
-# 2.5. Criação do Azure AI Foundry (AIServices) & Deployment Phi-4 Multimodal
+# 2.5. Criação do Serviço de IA (AIServices) & Deployment Multimodal
 # -----------------------------------------------------------------------------
 echo ""
-echo "▶ [2.5/4] Verificando / Criando Azure AI Foundry ($AI_ACCOUNT_NAME)..."
+echo "▶ [2.5/4] Verificando / Criando Serviço de IA ($AI_ACCOUNT_NAME)..."
 if ! az cognitiveservices account show --name "$AI_ACCOUNT_NAME" --resource-group "$RESOURCE_GROUP" >/dev/null 2>&1; then
   az cognitiveservices account create \
     --name "$AI_ACCOUNT_NAME" \

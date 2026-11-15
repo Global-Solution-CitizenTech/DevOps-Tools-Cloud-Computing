@@ -162,7 +162,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="kkhwHIN6lgJPd1tSBXo--44" connectable="0" parent="kkhwHIN6lgJPd1tSBXo--43" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;labelBackgroundColor=none;" value="&lt;b&gt;(4) Provisionamento IaC (Azure CLI)&lt;/b&gt;&lt;br&gt;az appservice plan / webapp create / appsettings&lt;br&gt;+ Azure AI Foundry (ai-zelafix-561432)" vertex="1">
+        <mxCell id="kkhwHIN6lgJPd1tSBXo--44" connectable="0" parent="kkhwHIN6lgJPd1tSBXo--43" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;labelBackgroundColor=none;" value="&lt;b&gt;(4) Provisionamento IaC (Azure CLI)&lt;/b&gt;&lt;br&gt;az appservice plan / webapp create / appsettings&lt;br&gt;+ Provedor de IA (Serviços Cognitivos)" vertex="1">
           <mxGeometry relative="1" x="-0.0164" as="geometry">
             <mxPoint x="45" y="-32" as="offset" />
           </mxGeometry>
@@ -284,22 +284,22 @@
             <mxPoint x="0" y="-24" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="foundry-box" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#E1D5E7;strokeColor=#9673A6;dashed=1;labelBackgroundColor=none;" value="" vertex="1">
+        <mxCell id="ai-box" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#E1D5E7;strokeColor=#9673A6;dashed=1;labelBackgroundColor=none;" value="" vertex="1">
           <mxGeometry height="120" width="410" x="1230" y="1150" as="geometry" />
         </mxCell>
-        <mxCell id="foundry-icon" parent="1" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/ai_machine_learning/AI_Foundry.svg;labelBackgroundColor=none;" value="" vertex="1">
+        <mxCell id="ai-icon" parent="1" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/ai_machine_learning/AI_Foundry.svg;labelBackgroundColor=none;" value="" vertex="1">
           <mxGeometry height="56" width="56" x="1248" y="1182" as="geometry" />
         </mxCell>
-        <mxCell id="foundry-text" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=11;" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;&lt;b&gt;Azure AI Foundry (ai-zelafix-561432)&lt;/b&gt;&lt;/font&gt;&lt;br&gt;Phi-4-multimodal-instruct • ai-zelafix-561432.services.ai.azure.com/openai/v1" vertex="1">
+        <mxCell id="ai-text" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=11;" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;&lt;b&gt;Provedor de LLM Multimodal&lt;/b&gt;&lt;/font&gt;&lt;br&gt;LLM Multimodal (OpenAI API Standard) • AI_BASE_URL" vertex="1">
           <mxGeometry height="100" width="270" x="1312" y="1160" as="geometry" />
         </mxCell>
-        <mxCell id="foundry-num" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;" value="9" vertex="1">
+        <mxCell id="ai-num" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;" value="9" vertex="1">
           <mxGeometry height="42" width="42" x="1590" y="1158" as="geometry" />
         </mxCell>
-        <mxCell id="edge-worker-foundry" edge="1" parent="1" source="zelafix-worker-box" target="foundry-box" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;startArrow=classic;startFill=1;endFill=1;dashed=1;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5915;entryY=0;entryDx=0;entryDy=0;">
+        <mxCell id="edge-worker-ai" edge="1" parent="1" source="zelafix-worker-box" target="ai-box" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;startArrow=classic;startFill=1;endFill=1;dashed=1;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5915;entryY=0;entryDx=0;entryDy=0;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="edge-worker-foundry-label" connectable="0" parent="edge-worker-foundry" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;labelBackgroundColor=none;" value="&lt;b&gt;(9) HTTPS (:443) – Spring AI&lt;/b&gt;&lt;br&gt;triagem multimodal (LLM)" vertex="1">
+        <mxCell id="edge-worker-ai-label" connectable="0" parent="edge-worker-ai" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;labelBackgroundColor=none;" value="&lt;b&gt;(9) HTTPS (:443) – Spring AI&lt;/b&gt;&lt;br&gt;triagem multimodal (LLM)" vertex="1">
           <mxGeometry relative="1" x="0" as="geometry">
             <mxPoint x="-112" y="0" as="offset" />
           </mxGeometry>
