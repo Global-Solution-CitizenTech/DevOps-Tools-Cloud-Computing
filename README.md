@@ -25,7 +25,7 @@
 
 | Recurso | Descrição | Link |
 |---|---|---|
-| 📄 **Documentação Oficial (PDF)** | Relatório técnico completo de DevOps Tools & Cloud Computing formatado para avaliação | [Documentação DevOps GS 2 - ZelaFix](./docs/Documentação%20DevOps%20GS%202%20-%20ZelaFix.pdf) |
+| 📄 **Documentação Oficial (PDF)** | Relatório técnico completo de DevOps Tools & Cloud Computing formatado para avaliação | [Documentação DevOps GS 2 - ZelaFix](./docs/ZelaFix_rm561432.pdf) |
 | 🌐 **API em Produção (Azure Web App)** | Endpoint base do App Service da API REST (Plano F1 Linux - Porta 8080) | https://app-zelafix.azurewebsites.net |
 | 📖 **Swagger UI Interativo (Produção)** | Console OpenAPI interativo com documentação dos endpoints da API | https://app-zelafix.azurewebsites.net/swagger-ui.html |
 | 🩺 **Actuator Health (API)** | Healthcheck em tempo real da API (Oracle DB + Liveness) | https://app-zelafix.azurewebsites.net/actuator/health |

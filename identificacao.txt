@@ -1,0 +1,28 @@
+================================================================================
+FIAP GRADUAÇÃO — GLOBAL SOLUTION 2026/2
+CITIZENTECH: TECNOLOGIA COM O CIDADÃO NO CENTRO DA INOVAÇÃO
+================================================================================
+
+PROJETO / GRUPO: ZelaFix — Zeladoria Urbana Colaborativa
+DISCIPLINA: DevOps Tools & Cloud Computing
+TURMA: 2TDSPG (2º Ano ADS - Turmas de Fevereiro)
+
+INTEGRANTES DO GRUPO:
+- RM: 561432 | Nome Completo: Enzo Okuizumi                    | Turma: 2TDSPG
+- RM: 563428 | Nome Completo: Gustavo Okada                    | Turma: 2TDSPG
+- RM: 566422 | Nome Completo: Lucas Barros Gouveia             | Turma: 2TDSPG
+- RM: 562290 | Nome Completo: Luna de Carvalho Guimarães       | Turma: 2TDSPG
+- RM: 564836 | Nome Completo: Milton Jakson de Sousa Marcelino | Turma: 2TDSPG
+
+REPOSITÓRIO GITHUB DEVOPS:
+https://github.com/Global-Solution-CitizenTech/DevOps-Tools-Cloud-Computing
+
+REPOSITÓRIO GITHUB JAVA:
+https://github.com/Global-Solution-CitizenTech/Java-Advanced
+
+ORGANIZAÇÃO E PROJETO NO AZURE DEVOPS:
+https://dev.azure.com/ZelaFixGS/ZelaFix
+
+VÍDEO DE DEMONSTRAÇÃO:
+[INSERIR LINK DO VÍDEO DO YOUTUBE AQUI]
+================================================================================
