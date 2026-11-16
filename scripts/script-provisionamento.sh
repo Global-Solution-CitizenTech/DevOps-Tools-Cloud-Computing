@@ -51,9 +51,9 @@ AI_BASE_URL="${AI_BASE_URL:-}"
 AI_MODEL="${AI_MODEL:-}"
 AI_API_KEY="${AI_API_KEY:-}"
 
-# Configuração de Memória Otimizada para o Free Tier F1 (1 GB RAM compartilhado)
-# -Xms256m -Xmx512m impede estouro de cgroup / OOMKilled no container Linux
-JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom"
+# Configuração de Memória Otimizada para o Free Tier F1 (1 GB RAM compartilhado entre API + Worker)
+# -Xms128m -Xmx320m cada impede estouro de cgroup / OOMKilled no container Linux
+JAVA_OPTS="-Xms128m -Xmx320m -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom"
 
 echo ""
 echo "================================================================="
