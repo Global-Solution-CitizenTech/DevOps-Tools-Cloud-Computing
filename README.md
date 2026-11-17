@@ -112,8 +112,8 @@ O **ZelaFix** é uma plataforma corporativa de **zeladoria urbana colaborativa**
 O backend utiliza o banco de dados corporativo **Oracle Database 19c** hospedado na infraestrutura da FIAP:
 
 * **Host / Conexão:** `jdbc:oracle:thin:@//oracle.fiap.com.br:1521/orcl`
-* **Schema / Usuário:** `RM561432`
-* **Script DDL Oficial:** [`scripts/script-bd.sql`](./scripts/script-bd.sql) (DDL Oracle 19c com sequences, constraints e tabelas conforme o Data Modeler `citizenTech.ddl`).
+* **Schema / Usuário:** `RM566422` (`rm566422`)
+* **Script DDL Oficial:** [`scripts/script-bd.sql`](./scripts/script-bd.sql) (DDL Oracle 19c com 14 tabelas — 13 de domínio + `auditoria_dml_chamado` —, sequences e constraints conforme o Data Modeler `citizenTech.ddl`).
 * **Migrations Automatizadas (Flyway):** Executadas na inicialização da API (`V1__criar_tabelas_zelafix.sql` com 13 tabelas em 3FN, `V2__admin_inicial.sql` com domínios base e admin, `V3__dados_iniciais_zelafix.sql`), garantindo versionamento idempotente e seguro do banco.
 
 ---
@@ -167,10 +167,8 @@ chmod +x scripts/script-provisionamento.sh
 
 O repositório conta com definições Docker otimizadas na pasta [`dockerfiles/`](./dockerfiles) para execução local ou em orquestradores de container:
 
-* [`dockerfiles/Dockerfile.api`](./dockerfiles/Dockerfile.api): Imagem baseada em `eclipse-temurin:21-jre-alpine` expondo a porta `8080` com timezone `America/Sao_Paulo`.
-* [`dockerfiles/Dockerfile.worker`](./dockerfiles/Dockerfile.worker): Imagem baseada em `eclipse-temurin:21-jre-alpine` expondo a porta `8081` para o worker assíncrono de IA.
-
-*(No repositório do código Java, os Dockerfiles contam adicionalmente com multi-stage build com compilação Gradle e geração de chaves RSA em tempo de build).*
+* [`dockerfiles/Dockerfile.api`](./dockerfiles/Dockerfile.api): Multi-stage build (`gradle:8.10-jdk21-alpine` → `eclipse-temurin:21-jre-alpine`), geração automática de chaves RSA 2048-bit, usuário não-root `appuser`, timezone `America/Sao_Paulo` e porta `8080`.
+* [`dockerfiles/Dockerfile.worker`](./dockerfiles/Dockerfile.worker): Multi-stage build (`gradle:8.10-jdk21-alpine` → `eclipse-temurin:21-jre-alpine`), usuário não-root `appuser`, timezone `America/Sao_Paulo` e porta `8081` para o worker assíncrono de IA.
 
 ---
 
@@ -237,15 +235,17 @@ Abaixo constam os payloads representativos para execução das operações de **
 ```text
 DevOps-Tools-Cloud-Computing/
 ├── dockerfiles/
-│   ├── Dockerfile.api                  # Dockerfile da API REST (Temurin 21 JRE Alpine)
-│   └── Dockerfile.worker               # Dockerfile do Worker Assíncrono de IA (Temurin 21 JRE Alpine)
-├── docs/                               # Diagramas, evidências e imagens de apoio
-│   ├── Documentação DevOps GS 2 - ZelaFix.pdf # Relatório técnico oficial completo da entrega (PDF)
+│   ├── Dockerfile.api                  # Dockerfile multi-stage da API REST (Temurin 21 JRE Alpine)
+│   └── Dockerfile.worker               # Dockerfile multi-stage do Worker de IA (Temurin 21 JRE Alpine)
+├── docs/                               # Diagramas, evidências e documentação oficial
+│   ├── ZelaFix_rm561432.pdf            # Relatório técnico oficial completo da entrega (PDF)
 │   ├── gs2-zelafix-diagrama.drawio     # Fonte editável do diagrama da arquitetura
 │   └── gs2-zelafix-diagrama.png        # Imagem exportada do diagrama arquitetural CI/CD
 ├── scripts/
-│   ├── script-bd.sql                   # DDL Oracle 19c com tabelas em 3FN e constraints
+│   ├── script-bd.sql                   # DDL Oracle 19c com 14 tabelas em 3FN e constraints
 │   └── script-provisionamento.sh       # Script Bash (Azure CLI) declarativo para provisionamento do RG, Plan e Web Apps (API + Worker)
+├── .env.example                        # Modelo seguro de variáveis de ambiente para provisionamento
 ├── azure-pipelines.yml                 # Definição oficial da esteira CI/CD (Build, Testes, Artefatos e Deploy)
+├── identificacao.txt                   # Identificação do grupo, repositórios e links oficiais
 └── README.md                           # Documentação técnica consolidada
 ```
