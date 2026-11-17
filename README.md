@@ -154,7 +154,7 @@ chmod +x scripts/script-provisionamento.sh
 * **Compartilhamento de Plano:** Ambos os Web Apps (`app-zelafix` e `app-zelafix-worker`) rodam dentro do mesmo App Service Plan `asp-zelafix`, custando **R$ 0 adicionais**.
 * **Otimização de JVM para F1:** Para evitar que o container Linux seja derrubado por limite de memória (*OOMKilled*), o script de provisionamento injeta automaticamente a configuração:
   ```bash
-  JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom"
+  JAVA_OPTS="-Xms128m -Xmx320m -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom"
   ```
 * **Escalabilidade Imediata:** Caso seja necessário manter a aplicação com *Always On* contínuo durante a banca avaliadora, basta alternar para o SKU `B1` com um único comando:
   ```bash
