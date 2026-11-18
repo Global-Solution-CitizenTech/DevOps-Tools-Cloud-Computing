@@ -51,6 +51,9 @@ AI_BASE_URL="${AI_BASE_URL:-}"
 AI_MODEL="${AI_MODEL:-}"
 AI_API_KEY="${AI_API_KEY:-}"
 
+# URL do Worker para wake-up assíncrono a partir da API no plano F1
+WORKER_URL="${WORKER_URL:-https://${WEB_APP_WORKER_NAME}.azurewebsites.net}"
+
 # Configuração de Memória Otimizada para o Free Tier F1 (1 GB RAM compartilhado entre API + Worker)
 # -Xms128m -Xmx320m cada impede estouro de cgroup / OOMKilled no container Linux
 JAVA_OPTS="-Xms128m -Xmx320m -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom"
@@ -156,6 +159,7 @@ az webapp config appsettings set \
     ORACLE_PASSWORD="$ORACLE_PASS" \
     JAVA_OPTS="$JAVA_OPTS" \
     SPRING_RABBITMQ_ADDRESSES="$RABBITMQ_URI" \
+    WORKER_URL="$WORKER_URL" \
   --output table
 
 echo ""

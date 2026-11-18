@@ -72,7 +72,7 @@ O **ZelaFix** é uma plataforma corporativa de **zeladoria urbana colaborativa**
 |---|---|---|
 | **Linguagem & Runtime** | Java 21 LTS | Runtime corporativo oficial com virtual threads e alta performance |
 | **Framework Base** | Spring Boot 4.1.1 | Ecossistema moderno com Spring Data JPA, Security, Actuator e Spring AI 2.0.1 |
-| **Gerenciador de Build** | Gradle Multi-Project (Gradle 8.10) | Compilação e testes atômicos no CI em 1 comando; artefatos JAR isolados e desacoplados |
+| **Gerenciador de Build** | Gradle Multi-Project (Gradle 9.8.2) | Compilação e testes atômicos no CI em 1 comando; artefatos JAR isolados e desacoplados |
 | **Banco de Dados Relacional** | Oracle Database 19c (FIAP Cloud) | 13 tabelas em 3ª Forma Normal (3FN), migrations automatizadas via Flyway |
 | **Message Broker** | CloudAMQP (RabbitMQ TLS 5671) | Comunicação assíncrona de eventos na nuvem com plano gratuito Lemon |
 | **Nuvem de Hospedagem** | Microsoft Azure App Service (Linux) | Host PaaS com plano **F1 (Free Tier)** para execução contínua sem custos |
@@ -167,8 +167,8 @@ chmod +x scripts/script-provisionamento.sh
 
 O repositório conta com definições Docker otimizadas na pasta [`dockerfiles/`](./dockerfiles) para execução local ou em orquestradores de container:
 
-* [`dockerfiles/Dockerfile.api`](./dockerfiles/Dockerfile.api): Multi-stage build (`gradle:8.10-jdk21-alpine` → `eclipse-temurin:21-jre-alpine`), geração automática de chaves RSA 2048-bit, usuário não-root `appuser`, timezone `America/Sao_Paulo` e porta `8080`.
-* [`dockerfiles/Dockerfile.worker`](./dockerfiles/Dockerfile.worker): Multi-stage build (`gradle:8.10-jdk21-alpine` → `eclipse-temurin:21-jre-alpine`), usuário não-root `appuser`, timezone `America/Sao_Paulo` e porta `8081` para o worker assíncrono de IA.
+* [`dockerfiles/Dockerfile.api`](./dockerfiles/Dockerfile.api): Multi-stage build (`eclipse-temurin:21-jdk-alpine` → `eclipse-temurin:21-jre-alpine`), geração automática de chaves RSA 2048-bit, usuário não-root `appuser`, timezone `America/Sao_Paulo`, `HEALTHCHECK` em `/actuator/health` e porta `8080`.
+* [`dockerfiles/Dockerfile.worker`](./dockerfiles/Dockerfile.worker): Multi-stage build (`eclipse-temurin:21-jdk-alpine` → `eclipse-temurin:21-jre-alpine`), usuário não-root `appuser`, timezone `America/Sao_Paulo`, `HEALTHCHECK` em `/actuator/health` e porta `8081` para o worker assíncrono de IA.
 
 ---
 
@@ -193,10 +193,8 @@ Abaixo constam os payloads representativos para execução das operações de **
     "nome": "Mariana Souza Santos",
     "email": "mariana.santos@email.com",
     "senha": "SenhaForte@2026",
-    "telefone": {
-      "ddd": "11",
-      "numero": "987654321"
-    },
+    "ddd": "11",
+    "numeroTelefone": "987654321",
     "endereco": {
       "cep": "01311000",
       "numero": "1106",
@@ -204,15 +202,15 @@ Abaixo constam os payloads representativos para execução das operações de **
     }
   }
   ```
-* **Read (`GET /usuarios?page=0&size=20`):** Retorna lista paginada de munícipes cadastrados (`ADMIN`).
-* **Update (`PUT /usuarios/me`):** Atualiza dados cadastrais e endereço do usuário autenticado.
-* **Delete (`DELETE /usuarios/{id}`):** Remove o registro do usuário (`ADMIN`).
+* **Read (`GET /usuarios?page=0&size=20` — `ADMIN` / `GET /usuarios/me` — Autenticado):** Retorna lista paginada de munícipes cadastrados (`ADMIN`) ou dados cadastrais do próprio usuário logado (`/usuarios/me`).
+* **Update (`PUT /usuarios/me` — Autenticado / `PUT /usuarios/{id}` — `ADMIN`):** Atualiza dados cadastrais e endereço (mesmo formato JSON do `POST /usuarios`).
+* **Delete (`DELETE /usuarios/{id}` — `ADMIN` / `DELETE /usuarios/me` — Autenticado):** Remove o registro do usuário.
 
 ### C. CRUD de Chamados de Zeladoria (`/chamados`)
-* **Create (`POST /chamados` — `multipart/form-data`):**
+* **Create (`POST /chamados` — `multipart/form-data`, Autenticado):**
   *(Requisito obrigatório: envio dos campos de endereço `cep`, `numero`, `referencia`, `rua` opcional e parte binária `foto`; a requisição aguarda via `DeferredResult` o parecer da Spring AI no RabbitMQ).*
-* **Read (`GET /chamados?page=0&size=20&sort=dtAbertura,desc`):** Retorna ocorrências paginadas e ordenadas.
-* **Update (`PUT /chamados/1`):**
+* **Read (`GET /chamados?page=0&size=20&sort=dtAbertura,desc` — Autenticado):** Retorna ocorrências paginadas e ordenadas.
+* **Update (`PUT /chamados/1` — `GESTOR` / `ADMIN`):**
   ```json
   {
     "titulo": "Buraco profundo na via pública (Risco Elevado)",
@@ -225,12 +223,29 @@ Abaixo constam os payloads representativos para execução das operações de **
     }
   }
   ```
-* **Apoiar / Votar (`POST /chamados/1/apoiar`):** Registra o apoio da comunidade para priorização urbana (dispara evento para o RabbitMQ).
-* **Delete (`DELETE /chamados/1`):** Cancela ou remove o chamado.
+* **Atualizar Status (`PATCH /chamados/1/status` — `GESTOR` / `ADMIN`):**
+  ```json
+  {
+    "status": "EM_EXECUCAO",
+    "observacao": "Ordem de serviço emitida para equipe técnica da subprefeitura."
+  }
+  ```
+* **Apoiar / Votar (`POST /chamados/1/apoiar` — Autenticado):** Registra o apoio da comunidade para priorização urbana (dispara evento para o RabbitMQ).
+* **Delete (`DELETE /chamados/1` — `GESTOR` / `ADMIN`):** Cancela ou remove o chamado junto com seus históricos e votos.
 
 ---
 
-## 8. 📁 Estrutura de Arquivos deste Repositório
+## 8. 🤖 Declaração de Uso de Inteligência Artificial Generativa
+
+Em cumprimento às diretrizes da Global Solution FIAP:
+
+* **Ferramentas Utilizadas:** **Gemini 3.8 Flash**, **Gemini 4 Hydrogen** e **Claude Sonnet 5.5** (Anthropic).
+* **Finalidade Específica:** Apoio na revisão de sintaxe de scripts Azure CLI/Bash (`script-provisionamento.sh`), configuração de tarefas YAML do Azure Pipelines (`azure-pipelines.yml`) e revisão textual da documentação técnica deste repositório.
+* **Responsabilidade Humana:** A arquitetura em nuvem no Microsoft Azure, a governança de branches e Work Items no Azure DevOps, o provisionamento e testes reais de deploy contínuo (CI/CD) dos dois serviços (`zelafix-api` e `zelafix-worker`) e a persistência no banco Oracle foram inteiramente implementados, validados e homologados pelos integrantes do grupo.
+
+---
+
+## 9. 📁 Estrutura de Arquivos deste Repositório
 
 ```text
 DevOps-Tools-Cloud-Computing/
