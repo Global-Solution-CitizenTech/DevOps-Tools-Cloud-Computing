@@ -25,7 +25,7 @@
 
 | Recurso | Descrição | Link |
 |---|---|---|
-| 📄 **Documentação Oficial (PDF)** | Relatório técnico completo de DevOps Tools & Cloud Computing formatado para avaliação | [Documentação DevOps GS 2 - ZelaFix](./docs/ZelaFix_rm561432.pdf) |
+| 📄 **Documentação Oficial (PDF)** | Documento oficial de entrega DevOps (folha de rosto, diagrama macro e links) | [Documentação DevOps GS 2 - ZelaFix](./docs/ZelaFix_rm561432.pdf) |
 | 🌐 **API em Produção (Azure Web App)** | Endpoint base do App Service da API REST (Plano F1 Linux - Porta 8080) | https://app-zelafix.azurewebsites.net |
 | 📖 **Swagger UI Interativo (Produção)** | Console OpenAPI interativo com documentação dos endpoints da API | https://app-zelafix.azurewebsites.net/swagger-ui.html |
 | 🩺 **Actuator Health (API)** | Healthcheck em tempo real da API (Oracle DB + Liveness) | https://app-zelafix.azurewebsites.net/actuator/health |
@@ -74,9 +74,9 @@ O **ZelaFix** é uma plataforma corporativa de **zeladoria urbana colaborativa**
 | **Framework Base** | Spring Boot 4.1.1 | Ecossistema moderno com Spring Data JPA, Security, Actuator e Spring AI 2.0.1 |
 | **Gerenciador de Build** | Gradle Multi-Project (Gradle 9.8.2) | Compilação e testes atômicos no CI em 1 comando; artefatos JAR isolados e desacoplados |
 | **Banco de Dados Relacional** | Oracle Database 19c (FIAP Cloud) | 13 tabelas em 3ª Forma Normal (3FN), migrations automatizadas via Flyway |
-| **Message Broker** | CloudAMQP (RabbitMQ TLS 5671) | Comunicação assíncrona de eventos na nuvem com plano gratuito Lemon |
+| **Message Broker** | CloudAMQP (RabbitMQ TLS 5671) | Comunicação assíncrona de eventos na nuvem com plano gratuito Little Lemur |
 | **Nuvem de Hospedagem** | Microsoft Azure App Service (Linux) | Host PaaS com plano **F1 (Free Tier)** para execução contínua sem custos |
-| **Esteira de CI/CD** | Azure DevOps Pipelines | Automação completa: compilação, 211 testes unitários/integrados, artefatos e deploy |
+| **Esteira de CI/CD** | Azure DevOps Pipelines | Automação completa: compilação, 229 testes unitários/integrados, artefatos e deploy |
 | **Espelhamento Contínuo** | GitHub Actions (`mirror-to-azure.yml`) | Push no GitHub sincroniza imediatamente e automaticamente com o Azure Repos |
 | **Agente de Execução** | Self-Hosted Agent (Windows) / Microsoft-Hosted | Pool `Default` dedicado para build e testes sem restrições de concorrência ou cotas |
 | **Infraestrutura como Código (IaC)** | Azure CLI / Bash | Provisionamento declarativo e idempotente do Resource Group, Plan e Web Apps |
@@ -98,7 +98,7 @@ O **ZelaFix** é uma plataforma corporativa de **zeladoria urbana colaborativa**
 2. **Políticas de Branch no Azure Repos:** A branch principal `main` é estritamente protegida: exige Work Item do Boards vinculado e aprovação de revisor antes de qualquer merge.
 3. **Merge Aprovado na `main`:** Ao completar o Pull Request na `main`, o gatilho nativo (`individualCI`) do `azure-pipelines.yml` é disparado automaticamente.
 4. **Alocação do Agente de Build:** O agente aloca o job em ambiente com JDK 21 e Gradle Wrapper.
-5. **Compilação e Testes Automatizados:** O comando Gradle compila ambos os submódulos (`zelafix-api` e `zelafix-worker`), gera chaves RSA dinâmicas e executa os 211 testes automatizados JUnit 5 (`181` da API + `30` do Worker).
+5. **Compilação e Testes Automatizados:** O comando Gradle compila ambos os submódulos (`zelafix-api` e `zelafix-worker`), gera chaves RSA dinâmicas e executa os 229 testes automatizados JUnit 5 (`196` da API + `33` do Worker).
 6. **Publicação dos Testes:** A tarefa `PublishTestResults@2` lê os arquivos XML gerados e disponibiliza a aba nativa de relatórios de testes no Azure DevOps.
 7. **Empacotamento e Publicação de Artefatos:** Os arquivos `zelafix-api.jar` e `zelafix-worker.jar` são consolidados no container de artefatos `'drop'` via `PublishBuildArtifacts@1`.
 8. **Disparo do Estágio CD:** A etapa de Release é executada automaticamente mediante aprovação e sucesso total do estágio de Build.
@@ -130,7 +130,7 @@ O backend utiliza o banco de dados corporativo **Oracle Database 19c** hospedado
   - *Nível da Organização:* **Basic**
   - *Nível do Projeto:* **Project Administrators**
 * **Segurança e DevSecOps (Variáveis Protegidas):**
-  - Credenciais de banco de dados (`ORACLE_PASSWORD`, `ORACLE_URL`, `ORACLE_USER`), token do RabbitMQ (`SPRING_RABBITMQ_ADDRESSES`) e chave da IA (`AI_API_KEY`) são cadastradas como **Secrets** mascarados nas variáveis da pipeline e no Application Settings dos Web Apps, sem exposição de texto puro no repositório Git.
+  - Credenciais de banco de dados (`ORACLE_PASSWORD`, `ORACLE_URL`, `ORACLE_USER`), URI do RabbitMQ (`RABBITMQ_URI`, mapeada para `SPRING_RABBITMQ_ADDRESSES`) e chave/configurações da IA (`AI_API_KEY`, `AI_BASE_URL`, `AI_MODEL`) são cadastradas como **Secrets** mascarados nas variáveis da pipeline e no Application Settings dos Web Apps, sem exposição de texto puro no repositório Git.
 
 ---
 
@@ -169,6 +169,12 @@ O repositório conta com definições Docker otimizadas na pasta [`dockerfiles/`
 
 * [`dockerfiles/Dockerfile.api`](./dockerfiles/Dockerfile.api): Multi-stage build (`eclipse-temurin:21-jdk-alpine` → `eclipse-temurin:21-jre-alpine`), geração automática de chaves RSA 2048-bit, usuário não-root `appuser`, timezone `America/Sao_Paulo`, `HEALTHCHECK` em `/actuator/health` e porta `8080`.
 * [`dockerfiles/Dockerfile.worker`](./dockerfiles/Dockerfile.worker): Multi-stage build (`eclipse-temurin:21-jdk-alpine` → `eclipse-temurin:21-jre-alpine`), usuário não-root `appuser`, timezone `America/Sao_Paulo`, `HEALTHCHECK` em `/actuator/health` e porta `8081` para o worker assíncrono de IA.
+
+```bash
+# Build a partir da raiz do repositório Java-Advanced/ (contexto do código-fonte Gradle):
+docker build -f ../DevOps-Tools-Cloud-Computing/dockerfiles/Dockerfile.api -t zelafix-api:latest .
+docker build -f ../DevOps-Tools-Cloud-Computing/dockerfiles/Dockerfile.worker -t zelafix-worker:latest .
+```
 
 ---
 
@@ -253,7 +259,7 @@ DevOps-Tools-Cloud-Computing/
 │   ├── Dockerfile.api                  # Dockerfile multi-stage da API REST (Temurin 21 JRE Alpine)
 │   └── Dockerfile.worker               # Dockerfile multi-stage do Worker de IA (Temurin 21 JRE Alpine)
 ├── docs/                               # Diagramas, evidências e documentação oficial
-│   ├── ZelaFix_rm561432.pdf            # Relatório técnico oficial completo da entrega (PDF)
+│   ├── ZelaFix_rm561432.pdf            # Documento oficial de entrega (capa, diagrama macro e links)
 │   ├── gs2-zelafix-diagrama.drawio     # Fonte editável do diagrama da arquitetura
 │   └── gs2-zelafix-diagrama.png        # Imagem exportada do diagrama arquitetural CI/CD
 ├── scripts/

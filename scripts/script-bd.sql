@@ -6,8 +6,8 @@
 -- MODELAGEM: Oracle Data Modeler (citizenTech.ddl) em 3FN, com CHECKs de domínio, índices e tabela de auditoria
 -- TURMA: 2TDSPG
 -- INTEGRANTES:
---   1. Enzo Okuizumi                    - RM: 561432
---   2. Gustavo Okada                    - RM: 563428
+--   1. Enzo Okuizumi Miranda de Souza  - RM: 561432
+--   2. Gustavo Keiji Okada             - RM: 563428
 --   3. Lucas Barros Gouveia             - RM: 566422
 --   4. Luna de Carvalho Guimarães       - RM: 562290
 --   5. Milton Jakson de Sousa Marcelino - RM: 564836

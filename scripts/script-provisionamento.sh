@@ -6,6 +6,7 @@
 # Script de Provisionamento Declarativo de Infraestrutura (Azure CLI)
 # =============================================================================
 
+set -euo pipefail
 export MSYS_NO_PATHCONV=1
 
 # -----------------------------------------------------------------------------
@@ -16,7 +17,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 for ENV_FILE in "$SCRIPT_DIR/../.env" "$SCRIPT_DIR/.env" ".env"; do
   if [ -f "$ENV_FILE" ]; then
     set -a
-    source "$ENV_FILE"
+    # Remove CR (\r) caso o .env tenha sido editado no Windows (CRLF)
+    source <(tr -d '\r' < "$ENV_FILE")
     set +a
     echo "🔒 [DevSecOps] Variáveis carregadas com sucesso a partir de $ENV_FILE"
     break
@@ -41,15 +43,18 @@ ORACLE_PASS="${ORACLE_PASSWORD:-}"
 # RabbitMQ (CloudAMQP - plano gratuito Little Lemur). A URI amqps://USER:SENHA@HOST/VHOST
 # carrega host, credenciais, vhost e TLS; o Spring a le via SPRING_RABBITMQ_ADDRESSES.
 RABBITMQ_URI="${RABBITMQ_URI:-}"
-if [ -z "$RABBITMQ_URI" ]; then
-  echo "❌ RABBITMQ_URI não definida no .env (ex.: amqps://usuario:senha@host.cloudamqp.com/vhost)."
-  exit 1
-fi
 
 # Spring AI (Provedor LLM Multimodal - Injetado via .env / App Settings)
-AI_BASE_URL="${AI_BASE_URL:-}"
-AI_MODEL="${AI_MODEL:-}"
+AI_BASE_URL="${AI_BASE_URL:-https://openrouter.ai/api/v1}"
+AI_MODEL="${AI_MODEL:-nvidia/nemotron-3.5-super-vl:free}"
 AI_API_KEY="${AI_API_KEY:-}"
+
+for REQUIRED_VAR in ORACLE_USER ORACLE_PASSWORD RABBITMQ_URI AI_API_KEY; do
+  if [ -z "${!REQUIRED_VAR:-}" ]; then
+    echo "❌ Variável obrigatória ${REQUIRED_VAR} não definida no .env (consulte .env.example)."
+    exit 1
+  fi
+done
 
 # URL do Worker para wake-up assíncrono a partir da API no plano F1
 WORKER_URL="${WORKER_URL:-https://${WEB_APP_WORKER_NAME}.azurewebsites.net}"
@@ -63,14 +68,14 @@ echo "================================================================="
 echo "⚙️  INICIANDO PROVISIONAMENTO DA INFRAESTRUTURA — ZELAFIX"
 echo "  Resource Group:   $RESOURCE_GROUP"
 echo "  Região:           $LOCATION"
-echo "  App Service Plan: $PLAN_NAME ($SKU Linux - Free Tier)"
-echo "  Azure Web App:    $WEB_APP_NAME (Runtime Java 21 Java SE)"
+echo "  App Service Plan: $PLAN_NAME ($SKU Linux)"
+echo "  Azure Web Apps:   $WEB_APP_NAME (API :8080) + $WEB_APP_WORKER_NAME (Worker :8081)"
 echo "================================================================="
 
 # -----------------------------------------------------------------------------
 # 0. Limpeza Prévia (Opcional - apaga o RG anterior se passado --clean)
 # -----------------------------------------------------------------------------
-if [ "$1" = "--clean" ]; then
+if [ "${1:-}" = "--clean" ]; then
   echo ""
   echo "🧹 [LIMPEZA] Parâmetro --clean detectado. Verificando se $RESOURCE_GROUP existe..."
   if [ "$(az group exists --name "$RESOURCE_GROUP" 2>/dev/null)" = "true" ]; then
@@ -160,7 +165,8 @@ az webapp config appsettings set \
     JAVA_OPTS="$JAVA_OPTS" \
     SPRING_RABBITMQ_ADDRESSES="$RABBITMQ_URI" \
     WORKER_URL="$WORKER_URL" \
-  --output table
+  --output none
+echo "✅ App Settings da API configuradas (valores ocultos por segurança)."
 
 echo ""
 echo "▶ [4.1/4] Configurando Variáveis de Ambiente no Worker (Porta 8081)..."
@@ -177,7 +183,8 @@ az webapp config appsettings set \
     AI_API_KEY="$AI_API_KEY" \
     AI_BASE_URL="$AI_BASE_URL" \
     AI_MODEL="$AI_MODEL" \
-  --output table
+  --output none
+echo "✅ App Settings do Worker configuradas (valores ocultos por segurança)."
 
 # -----------------------------------------------------------------------------
 # 5. Informações e Resumo de Entrega
