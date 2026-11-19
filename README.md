@@ -40,7 +40,7 @@
 
 ## 🔗 Vídeo de Demonstração (Global Solution 2)
 
-*(Link do YouTube será inserido após gravação)*
+[Video DevOps - ZelaFix Global Solution](https://www.youtube.com/watch?v=wOih1tjiwCA)
 
 ---
 
